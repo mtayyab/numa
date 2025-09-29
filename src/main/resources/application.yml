@@ -84,6 +84,16 @@ management:
     db:
       enabled: true
 
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+    tryItOutEnabled: true
+  show-actuator: true
+
 numa:
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:3001}
@@ -114,19 +124,20 @@ spring:
       on-profile: dev
   
   datasource:
-    url: jdbc:h2:mem:testdb
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: ""
+    url: jdbc:postgresql://localhost:5433/numa_db
+    username: ${DB_USERNAME:numa_user}
+    password: ${DB_PASSWORD:numa_password}
+    driver-class-name: org.postgresql.Driver
   
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: validate
     show-sql: true
-  
-  h2:
-    console:
-      enabled: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        use_sql_comments: true
 
 logging:
   level:

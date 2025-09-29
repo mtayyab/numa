@@ -236,31 +236,100 @@ export const tableApi = {
   },
 };
 
-// Session API
+// Guest API
+export const guestApi = {
+  getRestaurantBySlug: async (slug: string) => {
+    const response = await api.get(`/guest/restaurants/${slug}`);
+    return response.data;
+  },
+
+  getTableByQrCode: async (qrCode: string) => {
+    const response = await api.get(`/guest/tables/${qrCode}`);
+    return response.data;
+  },
+
+  getPublicMenu: async (slug: string) => {
+    const response = await api.get(`/guest/restaurants/${slug}/menu`);
+    return response.data;
+  },
+
+  joinSession: async (data: any) => {
+    const response = await api.post(`/guest/sessions/join`, data);
+    return response.data;
+  },
+
+  getSession: async (sessionId: string) => {
+    const response = await api.get(`/guest/sessions/${sessionId}`);
+    return response.data;
+  },
+
+  addToCart: async (sessionId: string, data: any) => {
+    const response = await api.post(`/guest/sessions/${sessionId}/cart`, data);
+    return response.data;
+  },
+
+  removeFromCart: async (sessionId: string, orderId: string) => {
+    const response = await api.delete(`/guest/sessions/${sessionId}/cart/${orderId}`);
+    return response.data;
+  },
+
+  updateCartItem: async (sessionId: string, orderId: string, data: any) => {
+    const response = await api.put(`/guest/sessions/${sessionId}/cart/${orderId}`, data);
+    return response.data;
+  },
+
+  submitOrder: async (sessionId: string) => {
+    const response = await api.post(`/guest/sessions/${sessionId}/orders`);
+    return response.data;
+  },
+
+  getSessionOrders: async (sessionId: string) => {
+    const response = await api.get(`/guest/sessions/${sessionId}/orders`);
+    return response.data;
+  },
+
+  leaveSession: async (sessionId: string, guestToken: string) => {
+    const response = await api.post(`/guest/sessions/${sessionId}/leave`, null, {
+      params: { guestToken }
+    });
+    return response.data;
+  },
+};
+
+// Session API (for backward compatibility)
 export const sessionApi = {
   create: async (tableId: string, data: any) => {
-    const response = await api.post(`/guest/tables/${tableId}/sessions`, data);
-    return response.data;
+    // This endpoint doesn't exist in our backend, so we'll use joinSession instead
+    const response = await guestApi.joinSession({
+      tableQrCode: tableId, // Assuming tableId is actually QR code
+      guestName: data.hostName,
+      restaurantId: data.restaurantId
+    });
+    return response;
   },
 
   getByCode: async (sessionCode: string) => {
-    const response = await api.get(`/guest/sessions/${sessionCode}`);
-    return response.data;
+    const response = await guestApi.getSession(sessionCode);
+    return response;
   },
 
   joinSession: async (sessionCode: string, guestData: any) => {
-    const response = await api.post(`/guest/sessions/${sessionCode}/join`, guestData);
-    return response.data;
+    const response = await guestApi.joinSession({
+      tableQrCode: sessionCode, // Assuming sessionCode is actually QR code
+      guestName: guestData.guestName,
+      restaurantId: guestData.restaurantId
+    });
+    return response;
   },
 
   callWaiter: async (sessionCode: string) => {
-    const response = await api.post(`/guest/sessions/${sessionCode}/call-waiter`);
-    return response.data;
+    // This endpoint doesn't exist in our backend yet
+    throw new Error('Call waiter functionality not implemented yet');
   },
 
   requestBill: async (sessionCode: string) => {
-    const response = await api.post(`/guest/sessions/${sessionCode}/request-bill`);
-    return response.data;
+    // This endpoint doesn't exist in our backend yet
+    throw new Error('Request bill functionality not implemented yet');
   },
 
   // Restaurant session management
@@ -277,14 +346,14 @@ export const sessionApi = {
 
 // Order API
 export const orderApi = {
-  create: async (sessionCode: string, orderData: any) => {
-    const response = await api.post(`/guest/sessions/${sessionCode}/orders`, orderData);
-    return response.data;
+  create: async (sessionId: string, orderData: any) => {
+    const response = await guestApi.addToCart(sessionId, orderData);
+    return response;
   },
 
-  getBySession: async (sessionCode: string) => {
-    const response = await api.get(`/guest/sessions/${sessionCode}/orders`);
-    return response.data;
+  getBySession: async (sessionId: string) => {
+    const response = await guestApi.getSessionOrders(sessionId);
+    return response;
   },
 
   // Restaurant order management

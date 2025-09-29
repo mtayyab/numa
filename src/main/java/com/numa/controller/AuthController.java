@@ -4,6 +4,10 @@ import com.numa.dto.request.LoginRequest;
 import com.numa.dto.request.RefreshTokenRequest;
 import com.numa.dto.response.AuthResponse;
 import com.numa.service.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/auth")
 @CrossOrigin(origins = "*", maxAge = 3600)
+@Tag(name = "Authentication", description = "Authentication and authorization endpoints")
 public class AuthController {
 
     @Autowired
@@ -24,6 +29,12 @@ public class AuthController {
     /**
      * Authenticate user and return JWT tokens
      */
+    @Operation(summary = "User Login", description = "Authenticate user credentials and return JWT tokens")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Login successful"),
+            @ApiResponse(responseCode = "401", description = "Invalid credentials"),
+            @ApiResponse(responseCode = "400", description = "Invalid request data")
+    })
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         AuthResponse response = authService.authenticate(request);

@@ -1,0 +1,29 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/numa_dev
+    username: numa_dev
+    password: numa_dev_password
+  
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+  
+  mail:
+    host: localhost
+    port: 1025
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
+  redis:
+    host: localhost
+    port: 6380
+
+logging:
+  level:
+    com.numa: DEBUG
+    org.springframework.security: DEBUG

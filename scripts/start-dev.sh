@@ -86,10 +86,10 @@ start_services() {
     print_status "Starting development services..."
     
     # Stop any existing services
-    docker-compose -f docker-compose.dev.yml down -v 2>/dev/null || true
+    docker-compose -f scripts/docker-compose.dev.yml down -v 2>/dev/null || true
     
     # Start services
-    docker-compose -f docker-compose.dev.yml up -d
+    docker-compose -f scripts/docker-compose.dev.yml up -d
     
     print_status "Waiting for services to be ready..."
     sleep 10
@@ -274,7 +274,7 @@ cleanup() {
     fi
     
     # Stop Docker services
-    docker-compose -f docker-compose.dev.yml down
+    docker-compose -f scripts/docker-compose.dev.yml down
     
     print_success "Development environment stopped"
     exit 0

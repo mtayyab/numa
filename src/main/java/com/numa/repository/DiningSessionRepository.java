@@ -49,6 +49,11 @@ public interface DiningSessionRepository extends JpaRepository<DiningSession, UU
     @Query("SELECT s FROM DiningSession s WHERE s.table.id = :tableId " +
            "AND s.status = 'ACTIVE' ORDER BY s.startedAt DESC")
     Optional<DiningSession> findActiveSessionByTable(@Param("tableId") UUID tableId);
+    
+    /**
+     * Find session by table ID and status
+     */
+    Optional<DiningSession> findByTableIdAndStatus(UUID tableId, SessionStatus status);
 
     /**
      * Find sessions by status and restaurant

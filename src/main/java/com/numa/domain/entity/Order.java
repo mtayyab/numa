@@ -5,6 +5,8 @@ import com.numa.domain.enums.OrderStatus;
 import com.numa.domain.enums.OrderType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -120,6 +122,7 @@ public class Order extends BaseEntity {
 
     // Store delivery address as JSON for flexibility
     @Column(name = "delivery_address", columnDefinition = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
     private Map<String, Object> deliveryAddress;
 
     // Relationships

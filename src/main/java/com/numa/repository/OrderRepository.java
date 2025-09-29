@@ -42,6 +42,21 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
      * Find orders by session ID
      */
     List<Order> findBySessionIdOrderByCreatedAtAsc(UUID sessionId);
+    
+    /**
+     * Find orders by session ID and status
+     */
+    List<Order> findBySessionIdAndStatus(UUID sessionId, OrderStatus status);
+    
+    /**
+     * Find orders by session ID excluding status
+     */
+    List<Order> findBySessionIdAndStatusNot(UUID sessionId, OrderStatus status);
+    
+    /**
+     * Find order by ID and session ID
+     */
+    Optional<Order> findByIdAndSessionId(UUID orderId, UUID sessionId);
 
     /**
      * Find orders by table ID

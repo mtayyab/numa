@@ -4,7 +4,9 @@ import com.numa.domain.common.BaseEntity;
 import com.numa.domain.enums.RestaurantStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Type;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -112,6 +114,7 @@ public class Restaurant extends BaseEntity {
 
     // Store restaurant-specific settings as JSON
     @Column(name = "settings", columnDefinition = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
     private Map<String, Object> settings;
 
     @Column(name = "delivery_enabled", nullable = false)

@@ -27,6 +27,11 @@ public interface MenuCategoryRepository extends JpaRepository<MenuCategory, UUID
      */
     @Query("SELECT c FROM MenuCategory c WHERE c.restaurant.id = :restaurantId AND c.isActive = true ORDER BY c.sortOrder ASC")
     List<MenuCategory> findActiveByRestaurantId(@Param("restaurantId") UUID restaurantId);
+    
+    /**
+     * Find active categories by restaurant ID ordered by sort order
+     */
+    List<MenuCategory> findByRestaurantIdAndIsActiveTrueOrderBySortOrderAsc(UUID restaurantId);
 
     /**
      * Find category by restaurant and name
