@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="001-create-restaurants" author="numa-team">
+        <createTable tableName="restaurants">
+            <column name="id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="slug" type="VARCHAR(100)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="description" type="TEXT"/>
+            <column name="email" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="phone" type="VARCHAR(20)"/>
+            <column name="address_line1" type="VARCHAR(255)"/>
+            <column name="address_line2" type="VARCHAR(255)"/>
+            <column name="city" type="VARCHAR(100)"/>
+            <column name="state" type="VARCHAR(100)"/>
+            <column name="postal_code" type="VARCHAR(20)"/>
+            <column name="country" type="VARCHAR(100)"/>
+            <column name="currency_code" type="VARCHAR(3)" defaultValue="USD">
+                <constraints nullable="false"/>
+            </column>
+            <column name="language_code" type="VARCHAR(5)" defaultValue="en">
+                <constraints nullable="false"/>
+            </column>
+            <column name="timezone" type="VARCHAR(50)" defaultValue="UTC">
+                <constraints nullable="false"/>
+            </column>
+            <column name="logo_url" type="VARCHAR(500)"/>
+            <column name="banner_url" type="VARCHAR(500)"/>
+            <column name="brand_color" type="VARCHAR(7)" defaultValue="#FF6B35"/>
+            <column name="status" type="VARCHAR(20)" defaultValue="ACTIVE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="subscription_plan" type="VARCHAR(20)" defaultValue="BASIC">
+                <constraints nullable="false"/>
+            </column>
+            <column name="subscription_expires_at" type="TIMESTAMP"/>
+            <column name="settings" type="JSONB"/>
+            <column name="delivery_enabled" type="BOOLEAN" defaultValueBoolean="false"/>
+            <column name="takeaway_enabled" type="BOOLEAN" defaultValueBoolean="true"/>
+            <column name="dine_in_enabled" type="BOOLEAN" defaultValueBoolean="true"/>
+            <column name="delivery_radius_km" type="DECIMAL(5,2)"/>
+            <column name="delivery_fee" type="DECIMAL(10,2)"/>
+            <column name="minimum_order_amount" type="DECIMAL(10,2)"/>
+            <column name="tax_rate" type="DECIMAL(5,4)" defaultValue="0.0000"/>
+            <column name="service_charge_rate" type="DECIMAL(5,4)" defaultValue="0.0000"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="restaurants" indexName="idx_restaurants_slug">
+            <column name="slug"/>
+        </createIndex>
+        
+        <createIndex tableName="restaurants" indexName="idx_restaurants_status">
+            <column name="status"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

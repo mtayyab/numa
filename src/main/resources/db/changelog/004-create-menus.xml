@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="004-create-menu-categories" author="numa-team">
+        <createTable tableName="menu_categories">
+            <column name="id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="restaurant_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_categories_restaurant" references="restaurants(id)"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="TEXT"/>
+            <column name="image_url" type="VARCHAR(500)"/>
+            <column name="sort_order" type="INTEGER" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="available_from" type="TIME"/>
+            <column name="available_until" type="TIME"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="menu_categories" indexName="idx_categories_restaurant_id">
+            <column name="restaurant_id"/>
+        </createIndex>
+        
+        <createIndex tableName="menu_categories" indexName="idx_categories_sort_order">
+            <column name="restaurant_id"/>
+            <column name="sort_order"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="004-create-menu-items" author="numa-team">
+        <createTable tableName="menu_items">
+            <column name="id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="restaurant_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_items_restaurant" references="restaurants(id)"/>
+            </column>
+            <column name="category_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_items_category" references="menu_categories(id)"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="TEXT"/>
+            <column name="price" type="DECIMAL(10,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="image_url" type="VARCHAR(500)"/>
+            <column name="preparation_time_minutes" type="INTEGER" defaultValue="15"/>
+            <column name="calories" type="INTEGER"/>
+            <column name="is_vegetarian" type="BOOLEAN" defaultValueBoolean="false"/>
+            <column name="is_vegan" type="BOOLEAN" defaultValueBoolean="false"/>
+            <column name="is_gluten_free" type="BOOLEAN" defaultValueBoolean="false"/>
+            <column name="is_spicy" type="BOOLEAN" defaultValueBoolean="false"/>
+            <column name="spice_level" type="INTEGER" defaultValue="0"/>
+            <column name="allergens" type="VARCHAR(500)"/>
+            <column name="ingredients" type="TEXT"/>
+            <column name="tags" type="VARCHAR(500)"/>
+            <column name="sort_order" type="INTEGER" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_available" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="available_from" type="TIME"/>
+            <column name="available_until" type="TIME"/>
+            <column name="stock_quantity" type="INTEGER"/>
+            <column name="low_stock_threshold" type="INTEGER" defaultValue="5"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="menu_items" indexName="idx_items_restaurant_id">
+            <column name="restaurant_id"/>
+        </createIndex>
+        
+        <createIndex tableName="menu_items" indexName="idx_items_category_id">
+            <column name="category_id"/>
+        </createIndex>
+        
+        <createIndex tableName="menu_items" indexName="idx_items_sort_order">
+            <column name="category_id"/>
+            <column name="sort_order"/>
+        </createIndex>
+        
+        <createIndex tableName="menu_items" indexName="idx_items_availability">
+            <column name="is_active"/>
+            <column name="is_available"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="004-create-item-variations" author="numa-team">
+        <createTable tableName="menu_item_variations">
+            <column name="id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="menu_item_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_variations_item" references="menu_items(id)"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="TEXT"/>
+            <column name="price_adjustment" type="DECIMAL(10,2)" defaultValue="0.00">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_default" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sort_order" type="INTEGER" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="menu_item_variations" indexName="idx_variations_item_id">
+            <column name="menu_item_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

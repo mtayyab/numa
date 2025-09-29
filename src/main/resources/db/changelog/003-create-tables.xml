@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="003-create-tables" author="numa-team">
+        <createTable tableName="restaurant_tables">
+            <column name="id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="restaurant_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_tables_restaurant" references="restaurants(id)"/>
+            </column>
+            <column name="table_number" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="capacity" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="location_description" type="VARCHAR(255)"/>
+            <column name="qr_code" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="qr_code_url" type="VARCHAR(500)"/>
+            <column name="status" type="VARCHAR(20)" defaultValue="AVAILABLE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="current_session_id" type="UUID"/>
+            <column name="last_cleaned_at" type="TIMESTAMP"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint tableName="restaurant_tables" 
+                           columnNames="restaurant_id, table_number" 
+                           constraintName="uk_restaurant_table_number"/>
+
+        <createIndex tableName="restaurant_tables" indexName="idx_tables_restaurant_id">
+            <column name="restaurant_id"/>
+        </createIndex>
+        
+        <createIndex tableName="restaurant_tables" indexName="idx_tables_qr_code">
+            <column name="qr_code"/>
+        </createIndex>
+        
+        <createIndex tableName="restaurant_tables" indexName="idx_tables_status">
+            <column name="status"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database for Development
+  postgres-dev:
+    image: postgres:15-alpine
+    container_name: numa-postgres-dev
+    environment:
+      POSTGRES_DB: numa_dev
+      POSTGRES_USER: numa_dev
+      POSTGRES_PASSWORD: numa_dev_password
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    ports:
+      - "5433:5432"
+    networks:
+      - numa-dev-network
+
+  # Redis Cache for Development
+  redis-dev:
+    image: redis:7-alpine
+    container_name: numa-redis-dev
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_dev_data:/data
+    networks:
+      - numa-dev-network
+    command: redis-server --appendonly yes
+
+  # MailHog for Email Testing
+  mailhog:
+    image: mailhog/mailhog
+    container_name: numa-mailhog
+    ports:
+      - "1025:1025"  # SMTP server
+      - "8025:8025"  # Web UI
+    networks:
+      - numa-dev-network
+
+  # pgAdmin for Database Management
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: numa-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@numa.dev
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres-dev
+    networks:
+      - numa-dev-network
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+volumes:
+  postgres_dev_data:
+    driver: local
+  redis_dev_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+networks:
+  numa-dev-network:
+    driver: bridge

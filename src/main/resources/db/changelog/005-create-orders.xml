@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="005-create-orders" author="numa-team">
+        <createTable tableName="orders">
+            <column name="id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="restaurant_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_orders_restaurant" references="restaurants(id)"/>
+            </column>
+            <column name="table_id" type="UUID">
+                <constraints foreignKeyName="fk_orders_table" references="restaurant_tables(id)"/>
+            </column>
+            <column name="session_id" type="UUID"/>
+            <column name="order_number" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="order_type" type="VARCHAR(20)" defaultValue="DINE_IN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(20)" defaultValue="PENDING">
+                <constraints nullable="false"/>
+            </column>
+            <column name="customer_name" type="VARCHAR(255)"/>
+            <column name="customer_phone" type="VARCHAR(20)"/>
+            <column name="customer_email" type="VARCHAR(255)"/>
+            <column name="special_instructions" type="TEXT"/>
+            <column name="subtotal" type="DECIMAL(10,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tax_amount" type="DECIMAL(10,2)" defaultValue="0.00">
+                <constraints nullable="false"/>
+            </column>
+            <column name="service_charge" type="DECIMAL(10,2)" defaultValue="0.00">
+                <constraints nullable="false"/>
+            </column>
+            <column name="delivery_fee" type="DECIMAL(10,2)" defaultValue="0.00">
+                <constraints nullable="false"/>
+            </column>
+            <column name="discount_amount" type="DECIMAL(10,2)" defaultValue="0.00">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_amount" type="DECIMAL(10,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payment_status" type="VARCHAR(20)" defaultValue="PENDING">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payment_method" type="VARCHAR(20)"/>
+            <column name="estimated_ready_time" type="TIMESTAMP"/>
+            <column name="ready_at" type="TIMESTAMP"/>
+            <column name="served_at" type="TIMESTAMP"/>
+            <column name="delivery_address" type="JSONB"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint tableName="orders" 
+                           columnNames="restaurant_id, order_number" 
+                           constraintName="uk_restaurant_order_number"/>
+
+        <createIndex tableName="orders" indexName="idx_orders_restaurant_id">
+            <column name="restaurant_id"/>
+        </createIndex>
+        
+        <createIndex tableName="orders" indexName="idx_orders_table_id">
+            <column name="table_id"/>
+        </createIndex>
+        
+        <createIndex tableName="orders" indexName="idx_orders_session_id">
+            <column name="session_id"/>
+        </createIndex>
+        
+        <createIndex tableName="orders" indexName="idx_orders_status">
+            <column name="status"/>
+        </createIndex>
+        
+        <createIndex tableName="orders" indexName="idx_orders_created_at">
+            <column name="created_at"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="005-create-order-items" author="numa-team">
+        <createTable tableName="order_items">
+            <column name="id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="order_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_order_items_order" references="orders(id)"/>
+            </column>
+            <column name="menu_item_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_order_items_menu_item" references="menu_items(id)"/>
+            </column>
+            <column name="variation_id" type="UUID">
+                <constraints foreignKeyName="fk_order_items_variation" references="menu_item_variations(id)"/>
+            </column>
+            <column name="guest_name" type="VARCHAR(255)"/>
+            <column name="quantity" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="unit_price" type="DECIMAL(10,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_price" type="DECIMAL(10,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="special_instructions" type="TEXT"/>
+            <column name="status" type="VARCHAR(20)" defaultValue="PENDING">
+                <constraints nullable="false"/>
+            </column>
+            <column name="prepared_at" type="TIMESTAMP"/>
+            <column name="served_at" type="TIMESTAMP"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="order_items" indexName="idx_order_items_order_id">
+            <column name="order_id"/>
+        </createIndex>
+        
+        <createIndex tableName="order_items" indexName="idx_order_items_menu_item_id">
+            <column name="menu_item_id"/>
+        </createIndex>
+        
+        <createIndex tableName="order_items" indexName="idx_order_items_status">
+            <column name="status"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

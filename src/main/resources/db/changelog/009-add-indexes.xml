@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="009-add-performance-indexes" author="numa-team">
+        <!-- Additional indexes for better query performance -->
+        
+        <!-- Composite indexes for common query patterns -->
+        <createIndex tableName="orders" indexName="idx_orders_restaurant_status_date">
+            <column name="restaurant_id"/>
+            <column name="status"/>
+            <column name="created_at"/>
+        </createIndex>
+        
+        <createIndex tableName="menu_items" indexName="idx_menu_items_restaurant_active_available">
+            <column name="restaurant_id"/>
+            <column name="is_active"/>
+            <column name="is_available"/>
+        </createIndex>
+        
+        <createIndex tableName="dining_sessions" indexName="idx_sessions_restaurant_status_date">
+            <column name="restaurant_id"/>
+            <column name="status"/>
+            <column name="started_at"/>
+        </createIndex>
+        
+        <!-- Indexes for search functionality -->
+        <sql>
+            CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_menu_items_search_name 
+            ON menu_items USING gin(to_tsvector('english', name));
+        </sql>
+        
+        <sql>
+            CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_menu_items_search_description 
+            ON menu_items USING gin(to_tsvector('english', description));
+        </sql>
+        
+        <!-- Partial indexes for active records -->
+        <sql>
+            CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_restaurants_active 
+            ON restaurants (id, name) WHERE status = 'ACTIVE';
+        </sql>
+        
+        <sql>
+            CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_menu_items_available 
+            ON menu_items (id, name, price) WHERE is_active = true AND is_available = true;
+        </sql>
+        
+        <sql>
+            CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_tables_available 
+            ON restaurant_tables (id, restaurant_id, table_number) WHERE status = 'AVAILABLE';
+        </sql>
+        
+        <!-- Indexes for analytics queries -->
+        <createIndex tableName="orders" indexName="idx_orders_analytics">
+            <column name="restaurant_id"/>
+            <column name="created_at"/>
+            <column name="total_amount"/>
+            <column name="status"/>
+        </createIndex>
+        
+        <createIndex tableName="order_items" indexName="idx_order_items_analytics">
+            <column name="menu_item_id"/>
+            <column name="created_at"/>
+            <column name="quantity"/>
+        </createIndex>
+        
+        <!-- Foreign key constraint additions that were missing -->
+        <addForeignKeyConstraint baseTableName="restaurant_tables"
+                               baseColumnNames="current_session_id"
+                               referencedTableName="dining_sessions"
+                               referencedColumnNames="id"
+                               constraintName="fk_tables_current_session"/>
+        
+        <addForeignKeyConstraint baseTableName="orders"
+                               baseColumnNames="session_id"
+                               referencedTableName="dining_sessions"
+                               referencedColumnNames="id"
+                               constraintName="fk_orders_session"/>
+    </changeSet>
+
+</databaseChangeLog>

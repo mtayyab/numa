@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="006-create-sessions" author="numa-team">
+        <createTable tableName="dining_sessions">
+            <column name="id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="restaurant_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_sessions_restaurant" references="restaurants(id)"/>
+            </column>
+            <column name="table_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_sessions_table" references="restaurant_tables(id)"/>
+            </column>
+            <column name="session_code" type="VARCHAR(10)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="status" type="VARCHAR(20)" defaultValue="ACTIVE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="guest_count" type="INTEGER" defaultValue="1">
+                <constraints nullable="false"/>
+            </column>
+            <column name="host_name" type="VARCHAR(255)"/>
+            <column name="host_phone" type="VARCHAR(20)"/>
+            <column name="special_requests" type="TEXT"/>
+            <column name="total_amount" type="DECIMAL(10,2)" defaultValue="0.00">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tip_amount" type="DECIMAL(10,2)" defaultValue="0.00">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payment_status" type="VARCHAR(20)" defaultValue="PENDING">
+                <constraints nullable="false"/>
+            </column>
+            <column name="waiter_called" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="waiter_call_time" type="TIMESTAMP"/>
+            <column name="waiter_response_time" type="TIMESTAMP"/>
+            <column name="started_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ended_at" type="TIMESTAMP"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="dining_sessions" indexName="idx_sessions_restaurant_id">
+            <column name="restaurant_id"/>
+        </createIndex>
+        
+        <createIndex tableName="dining_sessions" indexName="idx_sessions_table_id">
+            <column name="table_id"/>
+        </createIndex>
+        
+        <createIndex tableName="dining_sessions" indexName="idx_sessions_code">
+            <column name="session_code"/>
+        </createIndex>
+        
+        <createIndex tableName="dining_sessions" indexName="idx_sessions_status">
+            <column name="status"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="006-create-session-guests" author="numa-team">
+        <createTable tableName="session_guests">
+            <column name="id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="session_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_session_guests_session" references="dining_sessions(id)"/>
+            </column>
+            <column name="guest_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="guest_phone" type="VARCHAR(20)"/>
+            <column name="is_host" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="join_token" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="joined_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_activity_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="session_guests" indexName="idx_session_guests_session_id">
+            <column name="session_id"/>
+        </createIndex>
+        
+        <createIndex tableName="session_guests" indexName="idx_session_guests_token">
+            <column name="join_token"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="006-create-bill-splits" author="numa-team">
+        <createTable tableName="bill_splits">
+            <column name="id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="session_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_bill_splits_session" references="dining_sessions(id)"/>
+            </column>
+            <column name="guest_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_bill_splits_guest" references="session_guests(id)"/>
+            </column>
+            <column name="split_type" type="VARCHAR(20)" defaultValue="EQUAL">
+                <constraints nullable="false"/>
+            </column>
+            <column name="amount" type="DECIMAL(10,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="percentage" type="DECIMAL(5,2)"/>
+            <column name="payment_status" type="VARCHAR(20)" defaultValue="PENDING">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payment_method" type="VARCHAR(20)"/>
+            <column name="paid_at" type="TIMESTAMP"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="bill_splits" indexName="idx_bill_splits_session_id">
+            <column name="session_id"/>
+        </createIndex>
+        
+        <createIndex tableName="bill_splits" indexName="idx_bill_splits_guest_id">
+            <column name="guest_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>
