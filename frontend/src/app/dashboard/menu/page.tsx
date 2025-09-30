@@ -63,12 +63,12 @@ export default function MenuManagementPage() {
       const categoryData = {
         name: newCategory.name,
         description: newCategory.description,
-        sortOrder: menuCategories.length + 1,
+        sortOrder: (menuCategories?.length || 0) + 1,
         isActive: true
       };
 
       const newCategoryData = await menuApi.createCategory(user.restaurantId, categoryData);
-      setMenuCategories([...menuCategories, newCategoryData]);
+      setMenuCategories([...(menuCategories || []), newCategoryData]);
       setNewCategory({ name: '', description: '' });
       setShowAddCategory(false);
       toast.success('Category added successfully!');
@@ -165,7 +165,7 @@ export default function MenuManagementPage() {
 
           {/* Menu Categories */}
           <div className="space-y-6">
-            {menuCategories.map((category) => (
+            {menuCategories && menuCategories.map((category) => (
               <div key={category.id} className="bg-white shadow rounded-lg">
                 <div className="px-4 py-5 sm:p-6">
                   <div className="flex justify-between items-start">
@@ -192,7 +192,7 @@ export default function MenuManagementPage() {
                       </button>
                     </div>
                     
-                    {category.items.length > 0 ? (
+                    {category.items && category.items.length > 0 ? (
                       <div className="space-y-3">
                         {category.items.map((item) => (
                           <div key={item.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-md">
@@ -228,7 +228,7 @@ export default function MenuManagementPage() {
             ))}
           </div>
 
-          {menuCategories.length === 0 && (
+          {(!menuCategories || menuCategories.length === 0) && (
             <div className="text-center py-12">
               <h3 className="text-lg font-medium text-gray-900 mb-2">No menu categories yet</h3>
               <p className="text-gray-600 mb-4">Start by adding your first menu category.</p>
