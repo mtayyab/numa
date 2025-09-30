@@ -321,19 +321,6 @@ npm run test:coverage
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
-
-- Spring Boot community for excellent framework
-- Next.js team for the powerful React framework
-- Tailwind CSS for beautiful styling system
-- All contributors and testers
-
-## 📞 Support
-
-- **Documentation**: [Wiki](https://github.com/your-org/numa/wiki)
-- **Issues**: [GitHub Issues](https://github.com/your-org/numa/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/your-org/numa/discussions)
-- **Email**: support@numa.app
 
 ---
 

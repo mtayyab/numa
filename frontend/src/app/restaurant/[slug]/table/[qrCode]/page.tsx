@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import GuestMenuInterface from '@/components/guest/GuestMenuInterface';
-import { tableApi, restaurantApi } from '@/services/api';
+import { guestApi } from '@/services/api';
 
 interface PageProps {
   params: {
@@ -12,7 +12,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
-    const restaurant = await restaurantApi.getBySlug(params.slug);
+    const restaurant = await guestApi.getRestaurantBySlug(params.slug);
     return {
       title: `${restaurant.name} - Menu`,
       description: `Browse the menu and place your order at ${restaurant.name}`,
@@ -29,8 +29,8 @@ export default async function TableMenuPage({ params }: PageProps) {
   try {
     // Fetch restaurant and table data
     const [restaurant, table] = await Promise.all([
-      restaurantApi.getBySlug(params.slug),
-      tableApi.getByQrCode(params.qrCode),
+      guestApi.getRestaurantBySlug(params.slug),
+      guestApi.getTableByQrCode(params.qrCode),
     ]);
 
     // Verify the table belongs to the restaurant

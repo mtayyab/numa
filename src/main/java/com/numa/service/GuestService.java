@@ -13,6 +13,7 @@ import com.numa.dto.request.GuestOrderRequest;
 import com.numa.dto.response.GuestMenuResponse;
 import com.numa.dto.response.GuestSessionResponse;
 import com.numa.dto.response.GuestOrderResponse;
+import com.numa.dto.response.GuestRestaurantResponse;
 import com.numa.repository.RestaurantRepository;
 import com.numa.repository.RestaurantTableRepository;
 import com.numa.repository.MenuCategoryRepository;
@@ -58,9 +59,10 @@ public class GuestService {
     /**
      * Get restaurant by slug
      */
-    public Restaurant getRestaurantBySlug(String slug) {
-        return restaurantRepository.findBySlug(slug)
+    public GuestRestaurantResponse getRestaurantBySlug(String slug) {
+        Restaurant restaurant = restaurantRepository.findBySlug(slug)
                 .orElseThrow(() -> new ResourceNotFoundException("Restaurant not found with slug: " + slug));
+        return new GuestRestaurantResponse(restaurant);
     }
 
     /**
@@ -75,7 +77,8 @@ public class GuestService {
      * Get public menu for restaurant
      */
     public GuestMenuResponse getPublicMenu(String slug) {
-        Restaurant restaurant = getRestaurantBySlug(slug);
+        Restaurant restaurant = restaurantRepository.findBySlug(slug)
+                .orElseThrow(() -> new ResourceNotFoundException("Restaurant not found with slug: " + slug));
         List<MenuCategory> categories = menuCategoryRepository.findByRestaurantIdAndIsActiveTrueOrderBySortOrderAsc(restaurant.getId());
         
         // Filter out inactive menu items

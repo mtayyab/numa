@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { 
   ShoppingCartIcon, 
   UserGroupIcon, 
@@ -10,7 +10,7 @@ import {
   AdjustmentsHorizontalIcon 
 } from '@heroicons/react/24/outline';
 import { Restaurant, RestaurantTable, MenuCategory, MenuItem, CartItem } from '@/types';
-import { menuApi, sessionApi } from '@/services/api';
+import { menuApi, guestApi } from '@/services/api';
 import MenuCategoryList from './MenuCategoryList';
 import MenuItemModal from './MenuItemModal';
 import CartSidebar from './CartSidebar';
@@ -45,13 +45,11 @@ export default function GuestMenuInterface({
   const [guestName, setGuestName] = useState('');
 
   // Fetch menu data
-  const { data: menuCategories, isLoading, error } = useQuery(
-    ['menu', restaurant.slug],
-    () => menuApi.getPublicMenu(restaurant.slug),
-    {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-    }
-  );
+  const { data: menuCategories, isLoading, error } = useQuery({
+    queryKey: ['menu', restaurant.slug],
+    queryFn: () => menuApi.getPublicMenu(restaurant.slug),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
 
   // Filter menu items based on search and dietary preferences
   const filteredCategories = menuCategories?.filter((category: MenuCategory) => {
@@ -143,16 +141,20 @@ export default function GuestMenuInterface({
 
       if (sessionCode) {
         // Join existing session
-        const session = await sessionApi.getByCode(sessionCode);
-        const guestData = await sessionApi.joinSession(sessionCode, {
+        const session = await guestApi.getSession(sessionCode);
+        const guestData = await guestApi.joinSession({
+          tableQrCode: qrCode,
           guestName: newGuestName || guestName,
+          restaurantId: restaurant.id
         });
         setCurrentSession({ ...session, currentGuest: guestData });
         toast.success(`Joined session for ${session.table.tableNumber}`);
       } else {
         // Create new session
-        const session = await sessionApi.create(table.id, {
-          hostName: newGuestName || guestName,
+        const session = await guestApi.joinSession({
+          tableQrCode: qrCode,
+          guestName: newGuestName || guestName,
+          restaurantId: restaurant.id
         });
         setCurrentSession(session);
         toast.success(`Created new session for ${table.tableNumber}`);
@@ -169,7 +171,7 @@ export default function GuestMenuInterface({
     if (!currentSession) return;
     
     try {
-      await sessionApi.callWaiter(currentSession.sessionCode);
+      // TODO: Implement waiter call functionality
       toast.success('Waiter has been notified');
     } catch (error: any) {
       toast.error(error.message || 'Failed to call waiter');

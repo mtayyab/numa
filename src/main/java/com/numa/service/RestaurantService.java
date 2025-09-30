@@ -83,6 +83,7 @@ public class RestaurantService {
         owner.setPhone(request.getOwnerPhone());
         owner.setRole(UserRole.OWNER);
         owner.setStatus("ACTIVE");
+        owner.setEmailVerified(true); // TODO: Update this to false and send email verification email
 
         userRepository.save(owner);
 

@@ -11,7 +11,7 @@ services:
       POSTGRES_PASSWORD: numa_password
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     ports:
       - "5432:5432"
     networks:
@@ -41,7 +41,7 @@ services:
 
   # Spring Boot Backend
   backend:
-    build: .
+    build: ..
     container_name: numa-backend
     environment:
       - SPRING_PROFILES_ACTIVE=docker
@@ -64,8 +64,8 @@ services:
     networks:
       - numa-network
     volumes:
-      - ./uploads:/app/uploads
-      - ./logs:/app/logs
+      - ../uploads:/app/uploads
+      - ../logs:/app/logs
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/api/v1/actuator/health"]
       interval: 30s
@@ -75,7 +75,7 @@ services:
 
   # Next.js Frontend
   frontend:
-    build: ./frontend
+    build: ../frontend
     container_name: numa-frontend
     environment:
       - NODE_ENV=production
@@ -103,8 +103,8 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./nginx/ssl:/etc/nginx/ssl
+      - ../nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ../nginx/ssl:/etc/nginx/ssl
     depends_on:
       - backend
       - frontend

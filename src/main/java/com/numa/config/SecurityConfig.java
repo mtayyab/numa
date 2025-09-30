@@ -108,7 +108,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/auth/forgot-password", "/auth/reset-password").permitAll()
                 .requestMatchers(HttpMethod.GET, "/auth/verify-email").permitAll()
                 
-                // Restaurant onboarding
+                // Restaurant onboarding (must be before general restaurant rules)
                 .requestMatchers(HttpMethod.POST, "/restaurants/register").permitAll()
                 
                 // Public menu access (for guests)
@@ -124,8 +124,11 @@ public class SecurityConfig {
                 // File uploads
                 .requestMatchers(HttpMethod.POST, "/files/upload").hasAnyRole("OWNER", "MANAGER")
                 
-                // Restaurant management (authenticated users only)
-                .requestMatchers("/restaurants/**").authenticated()
+                // Restaurant management (authenticated users only) - specific patterns first
+                .requestMatchers("/restaurants/{id}/**").authenticated()
+                .requestMatchers("/restaurants/search").permitAll()
+                .requestMatchers("/restaurants/active").permitAll()
+                .requestMatchers("/restaurants/by-slug/{slug}").permitAll()
                 .requestMatchers("/menu/**").authenticated()
                 .requestMatchers("/tables/**").authenticated()
                 .requestMatchers("/orders/**").authenticated()

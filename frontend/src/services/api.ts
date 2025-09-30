@@ -163,7 +163,7 @@ export const menuApi = {
   },
 
   getPublicMenu: async (restaurantSlug: string) => {
-    const response = await api.get(`/public/restaurants/${restaurantSlug}/menu`);
+    const response = await api.get(`/guest/restaurants/${restaurantSlug}/menu`);
     return response.data;
   },
 
@@ -212,7 +212,7 @@ export const tableApi = {
   },
 
   getByQrCode: async (qrCode: string) => {
-    const response = await api.get(`/public/tables/qr/${qrCode}`);
+    const response = await api.get(`/guest/tables/${qrCode}`);
     return response.data;
   },
 

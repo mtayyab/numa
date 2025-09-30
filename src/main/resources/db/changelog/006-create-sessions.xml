@@ -147,6 +147,10 @@
         <createIndex tableName="bill_splits" indexName="idx_bill_splits_guest_id">
             <column name="guest_id"/>
         </createIndex>
+        
+        <createIndex tableName="bill_splits" indexName="idx_bill_splits_payment_status">
+            <column name="payment_status"/>
+        </createIndex>
     </changeSet>
 
 </databaseChangeLog>

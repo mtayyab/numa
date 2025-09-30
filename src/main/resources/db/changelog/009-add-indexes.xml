@@ -29,28 +29,28 @@
         
         <!-- Indexes for search functionality -->
         <sql>
-            CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_menu_items_search_name 
+            CREATE INDEX IF NOT EXISTS idx_menu_items_search_name 
             ON menu_items USING gin(to_tsvector('english', name));
         </sql>
         
         <sql>
-            CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_menu_items_search_description 
+            CREATE INDEX IF NOT EXISTS idx_menu_items_search_description 
             ON menu_items USING gin(to_tsvector('english', description));
         </sql>
         
         <!-- Partial indexes for active records -->
         <sql>
-            CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_restaurants_active 
+            CREATE INDEX IF NOT EXISTS idx_restaurants_active 
             ON restaurants (id, name) WHERE status = 'ACTIVE';
         </sql>
         
         <sql>
-            CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_menu_items_available 
+            CREATE INDEX IF NOT EXISTS idx_menu_items_available 
             ON menu_items (id, name, price) WHERE is_active = true AND is_available = true;
         </sql>
         
         <sql>
-            CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_tables_available 
+            CREATE INDEX IF NOT EXISTS idx_tables_available 
             ON restaurant_tables (id, restaurant_id, table_number) WHERE status = 'AVAILABLE';
         </sql>
         

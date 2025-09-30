@@ -1,11 +1,10 @@
-import { Metadata } from 'next';
+'use client';
+
 import Link from 'next/link';
 import { ArrowLeftIcon, CheckIcon } from '@heroicons/react/24/outline';
-
-export const metadata: Metadata = {
-  title: 'Register Restaurant - Numa',
-  description: 'Create your restaurant account and start using Numa for digital ordering.',
-};
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 
 const features = [
   'QR code ordering system',
@@ -17,6 +16,85 @@ const features = [
 ];
 
 export default function RegisterRestaurantPage() {
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    restaurantName: '',
+    email: '',
+    phone: '',
+    password: '',
+    confirmPassword: '',
+    restaurantType: 'Fast Food',
+    location: '',
+    terms: false
+  });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    // Client-side validation
+    if (formData.password !== formData.confirmPassword) {
+      toast.error('Passwords do not match');
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!formData.terms) {
+      toast.error('You must accept the terms and conditions');
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:8080/api/v1/restaurants/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          restaurantName: formData.restaurantName,
+          restaurantEmail: formData.email,
+          phone: formData.phone,
+          addressLine1: formData.location,
+          city: formData.location.split(',')[0]?.trim() || '',
+          state: formData.location.split(',')[1]?.trim() || '',
+          country: 'US',
+          currencyCode: 'USD',
+          timezone: 'America/New_York',
+          ownerFirstName: formData.restaurantName.split(' ')[0] || 'Owner',
+          ownerLastName: formData.restaurantName.split(' ').slice(1).join(' ') || 'Name',
+          ownerEmail: formData.email,
+          ownerPhone: formData.phone,
+          password: formData.password,
+          confirmPassword: formData.confirmPassword,
+          acceptTerms: formData.terms
+        }),
+      });
+
+      if (response.ok) {
+        toast.success('Restaurant registered successfully! Please check your email for verification.');
+        router.push('/auth/login');
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.message || 'Registration failed. Please try again.');
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      toast.error('Registration failed. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -53,7 +131,7 @@ export default function RegisterRestaurantPage() {
                 </p>
               </div>
 
-              <form className="mt-8 space-y-6" action="#" method="POST">
+              <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
                 <div className="space-y-4">
                   <div>
                     <label htmlFor="restaurant-name" className="block text-sm font-medium leading-6 text-gray-900">
@@ -62,9 +140,11 @@ export default function RegisterRestaurantPage() {
                     <div className="mt-2">
                       <input
                         id="restaurant-name"
-                        name="restaurant-name"
+                        name="restaurantName"
                         type="text"
                         required
+                        value={formData.restaurantName}
+                        onChange={handleInputChange}
                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6"
                         placeholder="Your Restaurant Name"
                       />
@@ -82,6 +162,8 @@ export default function RegisterRestaurantPage() {
                         type="email"
                         autoComplete="email"
                         required
+                        value={formData.email}
+                        onChange={handleInputChange}
                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6"
                         placeholder="your@email.com"
                       />
@@ -114,8 +196,29 @@ export default function RegisterRestaurantPage() {
                         type="password"
                         autoComplete="new-password"
                         required
+                        value={formData.password}
+                        onChange={handleInputChange}
                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6"
                         placeholder="Create a strong password"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="confirmPassword" className="block text-sm font-medium leading-6 text-gray-900">
+                      Confirm Password *
+                    </label>
+                    <div className="mt-2">
+                      <input
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        type="password"
+                        autoComplete="new-password"
+                        required
+                        value={formData.confirmPassword}
+                        onChange={handleInputChange}
+                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6"
+                        placeholder="Confirm your password"
                       />
                     </div>
                   </div>
@@ -150,6 +253,8 @@ export default function RegisterRestaurantPage() {
                         id="location"
                         name="location"
                         type="text"
+                        value={formData.location}
+                        onChange={handleInputChange}
                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6"
                         placeholder="City, State"
                       />
@@ -163,6 +268,8 @@ export default function RegisterRestaurantPage() {
                     name="terms"
                     type="checkbox"
                     required
+                    checked={formData.terms}
+                    onChange={handleInputChange}
                     className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-600"
                   />
                   <label htmlFor="terms" className="ml-2 block text-sm text-gray-900">

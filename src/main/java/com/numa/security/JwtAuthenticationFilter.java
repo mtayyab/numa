@@ -110,12 +110,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return path.startsWith("/actuator/") ||
                path.startsWith("/swagger-ui/") ||
                path.startsWith("/v3/api-docs/") ||
+               path.startsWith("/api/v1/guest/") ||
+               path.startsWith("/guest/") ||
+               path.startsWith("/api/v1/public/") ||
+               path.startsWith("/public/") ||
+               path.startsWith("/api/v1/qr/") ||
+               path.startsWith("/qr/") ||
+               path.equals("/api/v1/auth/login") ||
                path.equals("/auth/login") ||
+               path.equals("/api/v1/auth/register") ||
                path.equals("/auth/register") ||
+               path.equals("/api/v1/auth/refresh") ||
                path.equals("/auth/refresh") ||
+               path.startsWith("/api/v1/auth/forgot-password") ||
                path.startsWith("/auth/forgot-password") ||
+               path.startsWith("/api/v1/auth/reset-password") ||
                path.startsWith("/auth/reset-password") ||
+               path.startsWith("/api/v1/auth/verify-email") ||
                path.startsWith("/auth/verify-email") ||
-               path.equals("/restaurants/register");
+               path.equals("/api/v1/restaurants/register") ||
+               path.equals("/restaurants/register") ||
+               path.equals("/api/v1/restaurants/active") ||
+               path.equals("/restaurants/active") ||
+               path.startsWith("/api/v1/restaurants/by-slug/") ||
+               path.startsWith("/restaurants/by-slug/");
     }
 }
