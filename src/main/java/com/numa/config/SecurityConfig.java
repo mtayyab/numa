@@ -107,6 +107,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/auth/register", "/auth/login", "/auth/refresh").permitAll()
                 .requestMatchers(HttpMethod.POST, "/auth/forgot-password", "/auth/reset-password").permitAll()
                 .requestMatchers(HttpMethod.GET, "/auth/verify-email").permitAll()
+                .requestMatchers(HttpMethod.GET, "/auth/me").permitAll()
                 
                 // Restaurant onboarding (must be before general restaurant rules)
                 .requestMatchers(HttpMethod.POST, "/restaurants/register").permitAll()

@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { authApi, restaurantApi } from '@/services/api';
 
 export default function RestaurantManagementPage() {
   const router = useRouter();
@@ -11,32 +12,81 @@ export default function RestaurantManagementPage() {
   const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
-    // Check if user is logged in
-    const token = localStorage.getItem('numa_access_token');
-    if (!token) {
-      toast.error('Please login to access this page');
-      router.push('/auth/login');
-      return;
-    }
+    const fetchRestaurantData = async () => {
+      try {
+        // Check if user is logged in
+        const token = localStorage.getItem('numa_access_token');
+        if (!token) {
+          toast.error('Please login to access this page');
+          router.push('/auth/login');
+          return;
+        }
 
-    // TODO: Fetch restaurant data from API
-    // For now, just set mock data
-    setRestaurant({
-      name: 'My Restaurant',
-      email: 'restaurant@example.com',
-      phone: '+1 (555) 123-4567',
-      address: '123 Main St, City, State 12345',
-      status: 'ACTIVE',
-      currency: 'USD',
-      timezone: 'America/New_York'
-    });
-    setLoading(false);
+        // Get current user to get restaurant ID
+        const user = await authApi.getCurrentUser();
+        if (!user.restaurantId) {
+          toast.error('No restaurant associated with this account');
+          router.push('/dashboard');
+          return;
+        }
+
+        // Fetch restaurant data from API
+        const restaurantData = await restaurantApi.getById(user.restaurantId);
+        setRestaurant({
+          id: restaurantData.id,
+          name: restaurantData.name,
+          email: restaurantData.email,
+          phone: restaurantData.phone,
+          address: `${restaurantData.addressLine1}, ${restaurantData.city}, ${restaurantData.state} ${restaurantData.postalCode}`,
+          status: restaurantData.status,
+          currency: restaurantData.currencyCode,
+          timezone: restaurantData.timezone,
+          description: restaurantData.description,
+          brandColor: restaurantData.brandColor
+        });
+      } catch (error: any) {
+        console.error('Error fetching restaurant data:', error);
+        toast.error(error.message || 'Failed to load restaurant data');
+        router.push('/dashboard');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRestaurantData();
   }, [router]);
 
-  const handleSave = () => {
-    // TODO: Implement save functionality
-    toast.success('Restaurant information updated successfully!');
-    setIsEditing(false);
+  const handleSave = async () => {
+    try {
+      if (!restaurant?.id) {
+        toast.error('No restaurant data to save');
+        return;
+      }
+
+      // Parse address back into components
+      const addressParts = restaurant.address.split(', ');
+      const updateData = {
+        name: restaurant.name,
+        email: restaurant.email,
+        phone: restaurant.phone,
+        addressLine1: addressParts[0] || '',
+        city: addressParts[1] || '',
+        state: addressParts[2]?.split(' ')[0] || '',
+        postalCode: addressParts[2]?.split(' ')[1] || '',
+        status: restaurant.status,
+        currencyCode: restaurant.currency,
+        timezone: restaurant.timezone,
+        description: restaurant.description,
+        brandColor: restaurant.brandColor
+      };
+
+      await restaurantApi.update(restaurant.id, updateData);
+      toast.success('Restaurant information updated successfully!');
+      setIsEditing(false);
+    } catch (error: any) {
+      console.error('Error updating restaurant:', error);
+      toast.error(error.message || 'Failed to update restaurant information');
+    }
   };
 
   if (loading) {

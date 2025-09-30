@@ -28,31 +28,31 @@
         </createIndex>
         
         <!-- Indexes for search functionality -->
-        <sql>
-            CREATE INDEX IF NOT EXISTS idx_menu_items_search_name 
-            ON menu_items USING gin(to_tsvector('english', name));
-        </sql>
+        <createIndex tableName="menu_items" indexName="idx_menu_items_search_name">
+            <column name="name"/>
+        </createIndex>
         
-        <sql>
-            CREATE INDEX IF NOT EXISTS idx_menu_items_search_description 
-            ON menu_items USING gin(to_tsvector('english', description));
-        </sql>
+        <createIndex tableName="menu_items" indexName="idx_menu_items_search_description">
+            <column name="description"/>
+        </createIndex>
         
         <!-- Partial indexes for active records -->
-        <sql>
-            CREATE INDEX IF NOT EXISTS idx_restaurants_active 
-            ON restaurants (id, name) WHERE status = 'ACTIVE';
-        </sql>
+        <createIndex tableName="restaurants" indexName="idx_restaurants_active">
+            <column name="id"/>
+            <column name="name"/>
+        </createIndex>
         
-        <sql>
-            CREATE INDEX IF NOT EXISTS idx_menu_items_available 
-            ON menu_items (id, name, price) WHERE is_active = true AND is_available = true;
-        </sql>
+        <createIndex tableName="menu_items" indexName="idx_menu_items_available">
+            <column name="id"/>
+            <column name="name"/>
+            <column name="price"/>
+        </createIndex>
         
-        <sql>
-            CREATE INDEX IF NOT EXISTS idx_tables_available 
-            ON restaurant_tables (id, restaurant_id, table_number) WHERE status = 'AVAILABLE';
-        </sql>
+        <createIndex tableName="restaurant_tables" indexName="idx_tables_available">
+            <column name="id"/>
+            <column name="restaurant_id"/>
+            <column name="table_number"/>
+        </createIndex>
         
         <!-- Indexes for analytics queries -->
         <createIndex tableName="orders" indexName="idx_orders_analytics">

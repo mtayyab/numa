@@ -183,7 +183,15 @@ export default function TestGuestPage() {
     if (!currentSession) return;
     
     try {
-      toast.success('Waiter has been notified');
+      // TODO: Implement real API call to notify waiter
+      // For now, just show success message
+      toast.success('Waiter has been notified and will be with you shortly!');
+      
+      // In a real implementation, this would:
+      // 1. Send a request to the backend
+      // 2. Create a waiter alert in the database
+      // 3. The dashboard would show the alert
+      // 4. Restaurant staff could acknowledge and complete the request
     } catch (error: any) {
       toast.error(error.message || 'Failed to call waiter');
     }

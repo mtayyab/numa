@@ -127,4 +127,10 @@ public interface UserRepository extends JpaRepository<User, UUID> {
      */
     @Query("SELECT u FROM User u WHERE u.restaurant.id = :restaurantId AND u.role = :role AND u.status = 'ACTIVE'")
     List<User> findActiveUsersByRestaurantAndRole(@Param("restaurantId") UUID restaurantId, @Param("role") UserRole role);
+
+    /**
+     * Find user by ID with restaurant data to avoid lazy loading issues
+     */
+    @Query("SELECT u FROM User u JOIN FETCH u.restaurant WHERE u.id = :id")
+    Optional<User> findByIdWithRestaurant(@Param("id") UUID id);
 }

@@ -25,9 +25,11 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Form submitted with data:', formData);
     setIsSubmitting(true);
 
     try {
+      console.log('Making API call to login endpoint...');
       const response = await fetch('http://localhost:8080/api/v1/auth/login', {
         method: 'POST',
         headers: {
@@ -39,16 +41,25 @@ export default function LoginPage() {
         }),
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
       if (response.ok) {
         const data = await response.json();
+        console.log('Login successful, data:', data);
+        
         // Store tokens
         localStorage.setItem('numa_access_token', data.accessToken);
         localStorage.setItem('numa_refresh_token', data.refreshToken);
         
+        console.log('Tokens stored in localStorage');
         toast.success('Login successful!');
+        
+        console.log('Redirecting to dashboard...');
         router.push('/dashboard'); // Redirect to dashboard
       } else {
         const errorData = await response.json();
+        console.error('Login failed:', errorData);
         toast.error(errorData.message || 'Login failed. Please try again.');
       }
     } catch (error) {

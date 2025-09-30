@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Frontend Login</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .form-group { margin: 20px 0; }
+        label { display: block; margin-bottom: 5px; }
+        input { width: 300px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { margin-top: 20px; padding: 10px; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+    <h1>Test Frontend Login</h1>
+    
+    <form id="loginForm">
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" value="test@restaurant.com" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" value="password123" required>
+        </div>
+        
+        <button type="submit">Login</button>
+    </form>
+    
+    <div id="result"></div>
+    
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                resultDiv.innerHTML = '<p>Logging in...</p>';
+                
+                const response = await fetch('http://localhost:8080/api/v1/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Store tokens
+                    localStorage.setItem('numa_access_token', data.accessToken);
+                    localStorage.setItem('numa_refresh_token', data.refreshToken);
+                    
+                    resultDiv.innerHTML = `
+                        <div class="result success">
+                            <h3>Login Successful!</h3>
+                            <p><strong>User:</strong> ${data.firstName} ${data.lastName}</p>
+                            <p><strong>Email:</strong> ${data.email}</p>
+                            <p><strong>Role:</strong> ${data.role}</p>
+                            <p><strong>Restaurant:</strong> ${data.restaurantName}</p>
+                            <p><strong>Access Token:</strong> ${data.accessToken.substring(0, 50)}...</p>
+                        </div>
+                    `;
+                    
+                    // Test /auth/me endpoint
+                    setTimeout(async () => {
+                        try {
+                            const meResponse = await fetch('http://localhost:8080/api/v1/auth/me', {
+                                headers: {
+                                    'Authorization': `Bearer ${data.accessToken}`
+                                }
+                            });
+                            
+                            if (meResponse.ok) {
+                                const meData = await meResponse.json();
+                                resultDiv.innerHTML += `
+                                    <div class="result success">
+                                        <h3>/auth/me Test Successful!</h3>
+                                        <p><strong>User ID:</strong> ${meData.id}</p>
+                                        <p><strong>Email:</strong> ${meData.email}</p>
+                                        <p><strong>Role:</strong> ${meData.role}</p>
+                                    </div>
+                                `;
+                            } else {
+                                const errorData = await meResponse.json();
+                                resultDiv.innerHTML += `
+                                    <div class="result error">
+                                        <h3>/auth/me Test Failed</h3>
+                                        <p><strong>Status:</strong> ${meResponse.status}</p>
+                                        <p><strong>Error:</strong> ${errorData.message}</p>
+                                    </div>
+                                `;
+                            }
+                        } catch (error) {
+                            resultDiv.innerHTML += `
+                                <div class="result error">
+                                    <h3>/auth/me Test Error</h3>
+                                    <p><strong>Error:</strong> ${error.message}</p>
+                                </div>
+                            `;
+                        }
+                    }, 1000);
+                    
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="result error">
+                            <h3>Login Failed</h3>
+                            <p><strong>Status:</strong> ${response.status}</p>
+                            <p><strong>Error:</strong> ${data.message}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        <h3>Network Error</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>

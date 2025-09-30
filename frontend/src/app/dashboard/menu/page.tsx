@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { authApi, menuApi } from '@/services/api';
 
 export default function MenuManagementPage() {
   const router = useRouter();
@@ -12,56 +13,69 @@ export default function MenuManagementPage() {
   const [newCategory, setNewCategory] = useState({ name: '', description: '' });
 
   useEffect(() => {
-    // Check if user is logged in
-    const token = localStorage.getItem('numa_access_token');
-    if (!token) {
-      toast.error('Please login to access this page');
-      router.push('/auth/login');
-      return;
-    }
+    const fetchMenuData = async () => {
+      try {
+        // Check if user is logged in
+        const token = localStorage.getItem('numa_access_token');
+        if (!token) {
+          toast.error('Please login to access this page');
+          router.push('/auth/login');
+          return;
+        }
 
-    // TODO: Fetch menu data from API
-    // For now, just set mock data
-    setMenuCategories([
-      {
-        id: 1,
-        name: 'Appetizers',
-        description: 'Start your meal with our delicious appetizers',
-        items: [
-          { id: 1, name: 'Caesar Salad', price: 8.99, description: 'Fresh romaine lettuce with caesar dressing' },
-          { id: 2, name: 'Buffalo Wings', price: 12.99, description: 'Spicy buffalo wings with ranch dip' }
-        ]
-      },
-      {
-        id: 2,
-        name: 'Main Courses',
-        description: 'Our signature main dishes',
-        items: [
-          { id: 3, name: 'Grilled Salmon', price: 24.99, description: 'Fresh Atlantic salmon with lemon butter' },
-          { id: 4, name: 'Ribeye Steak', price: 32.99, description: '12oz ribeye steak cooked to perfection' }
-        ]
+        // Get current user to get restaurant ID
+        const user = await authApi.getCurrentUser();
+        if (!user.restaurantId) {
+          toast.error('No restaurant associated with this account');
+          router.push('/dashboard');
+          return;
+        }
+
+        // Fetch menu categories from API
+        const categories = await menuApi.getCategories(user.restaurantId);
+        setMenuCategories(categories);
+      } catch (error: any) {
+        console.error('Error fetching menu data:', error);
+        toast.error(error.message || 'Failed to load menu data');
+        router.push('/dashboard');
+      } finally {
+        setLoading(false);
       }
-    ]);
-    setLoading(false);
-  }, [router]);
-
-  const handleAddCategory = () => {
-    if (!newCategory.name.trim()) {
-      toast.error('Category name is required');
-      return;
-    }
-
-    const category = {
-      id: Date.now(),
-      name: newCategory.name,
-      description: newCategory.description,
-      items: []
     };
 
-    setMenuCategories([...menuCategories, category]);
-    setNewCategory({ name: '', description: '' });
-    setShowAddCategory(false);
-    toast.success('Category added successfully!');
+    fetchMenuData();
+  }, [router]);
+
+  const handleAddCategory = async () => {
+    try {
+      if (!newCategory.name.trim()) {
+        toast.error('Category name is required');
+        return;
+      }
+
+      // Get current user to get restaurant ID
+      const user = await authApi.getCurrentUser();
+      if (!user.restaurantId) {
+        toast.error('No restaurant associated with this account');
+        return;
+      }
+
+      const categoryData = {
+        name: newCategory.name,
+        description: newCategory.description,
+        sortOrder: menuCategories.length + 1,
+        isActive: true
+      };
+
+      const newCategoryData = await menuApi.createCategory(user.restaurantId, categoryData);
+      setMenuCategories([...menuCategories, newCategoryData]);
+      setNewCategory({ name: '', description: '' });
+      setShowAddCategory(false);
+      toast.success('Category added successfully!');
+    } catch (error: any) {
+      console.error('Error adding category:', error);
+      toast.error(error.message || 'Failed to add category');
+    }
   };
 
   if (loading) {

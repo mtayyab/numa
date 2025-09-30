@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { authApi, orderApi } from '@/services/api';
 
 export default function OrdersManagementPage() {
   const router = useRouter();
@@ -11,57 +12,37 @@ export default function OrdersManagementPage() {
   const [filter, setFilter] = useState('all');
 
   useEffect(() => {
-    // Check if user is logged in
-    const token = localStorage.getItem('numa_access_token');
-    if (!token) {
-      toast.error('Please login to access this page');
-      router.push('/auth/login');
-      return;
-    }
+    const fetchOrdersData = async () => {
+      try {
+        // Check if user is logged in
+        const token = localStorage.getItem('numa_access_token');
+        if (!token) {
+          toast.error('Please login to access this page');
+          router.push('/auth/login');
+          return;
+        }
 
-    // TODO: Fetch orders data from API
-    // For now, just set mock data
-    setOrders([
-      {
-        id: 'ORD-001',
-        tableNumber: 'T-05',
-        customerName: 'John Doe',
-        status: 'PENDING',
-        total: 45.99,
-        items: [
-          { name: 'Caesar Salad', quantity: 1, price: 8.99 },
-          { name: 'Grilled Salmon', quantity: 1, price: 24.99 },
-          { name: 'Chocolate Cake', quantity: 1, price: 12.01 }
-        ],
-        createdAt: '2025-09-29T15:30:00Z'
-      },
-      {
-        id: 'ORD-002',
-        tableNumber: 'T-12',
-        customerName: 'Jane Smith',
-        status: 'CONFIRMED',
-        total: 28.50,
-        items: [
-          { name: 'Buffalo Wings', quantity: 1, price: 12.99 },
-          { name: 'Ribeye Steak', quantity: 1, price: 15.51 }
-        ],
-        createdAt: '2025-09-29T16:15:00Z'
-      },
-      {
-        id: 'ORD-003',
-        tableNumber: 'T-08',
-        customerName: 'Mike Johnson',
-        status: 'COMPLETED',
-        total: 67.25,
-        items: [
-          { name: 'Caesar Salad', quantity: 2, price: 17.98 },
-          { name: 'Grilled Salmon', quantity: 1, price: 24.99 },
-          { name: 'Ribeye Steak', quantity: 1, price: 24.28 }
-        ],
-        createdAt: '2025-09-29T14:45:00Z'
+        // Get current user to get restaurant ID
+        const user = await authApi.getCurrentUser();
+        if (!user.restaurantId) {
+          toast.error('No restaurant associated with this account');
+          router.push('/dashboard');
+          return;
+        }
+
+        // Fetch orders from API
+        const ordersData = await orderApi.getAll(user.restaurantId);
+        setOrders(ordersData);
+      } catch (error: any) {
+        console.error('Error fetching orders data:', error);
+        toast.error(error.message || 'Failed to load orders data');
+        router.push('/dashboard');
+      } finally {
+        setLoading(false);
       }
-    ]);
-    setLoading(false);
+    };
+
+    fetchOrdersData();
   }, [router]);
 
   const getStatusColor = (status: string) => {
@@ -83,11 +64,24 @@ export default function OrdersManagementPage() {
     }
   };
 
-  const updateOrderStatus = (orderId: string, newStatus: string) => {
-    setOrders(orders.map(order => 
-      order.id === orderId ? { ...order, status: newStatus } : order
-    ));
-    toast.success(`Order ${orderId} status updated to ${newStatus}`);
+  const updateOrderStatus = async (orderId: string, newStatus: string) => {
+    try {
+      // Get current user to get restaurant ID
+      const user = await authApi.getCurrentUser();
+      if (!user.restaurantId) {
+        toast.error('No restaurant associated with this account');
+        return;
+      }
+
+      await orderApi.updateStatus(user.restaurantId, orderId, newStatus);
+      setOrders(orders.map(order => 
+        order.id === orderId ? { ...order, status: newStatus } : order
+      ));
+      toast.success(`Order ${orderId} status updated to ${newStatus}`);
+    } catch (error: any) {
+      console.error('Error updating order status:', error);
+      toast.error(error.message || 'Failed to update order status');
+    }
   };
 
   const filteredOrders = orders.filter(order => {

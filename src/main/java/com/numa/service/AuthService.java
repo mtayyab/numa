@@ -1,12 +1,16 @@
 package com.numa.service;
 
 import com.numa.domain.entity.User;
+import com.numa.domain.entity.Restaurant;
 import com.numa.dto.request.LoginRequest;
 import com.numa.dto.request.RefreshTokenRequest;
 import com.numa.dto.response.AuthResponse;
 import com.numa.exception.ValidationException;
+import com.numa.exception.ResourceNotFoundException;
 import com.numa.repository.UserRepository;
+import com.numa.repository.RestaurantRepository;
 import com.numa.security.JwtUtil;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -34,6 +38,9 @@ public class AuthService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RestaurantRepository restaurantRepository;
 
     /**
      * Authenticate user and generate tokens
@@ -121,6 +128,16 @@ public class AuthService {
         
         if (principal instanceof User) {
             User user = (User) principal;
+            
+            // Get restaurant ID from JWT token to avoid lazy loading issues
+            UUID restaurantId = jwtUtil.getRestaurantIdFromToken(
+                SecurityContextHolder.getContext().getAuthentication().getCredentials().toString()
+            );
+            
+            // Fetch restaurant data separately to avoid lazy loading issues
+            Restaurant restaurant = restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new ResourceNotFoundException("Restaurant not found"));
+            
             // Return user info without sensitive data
             return new UserInfoResponse(
                 user.getId(),
@@ -128,8 +145,8 @@ public class AuthService {
                 user.getFirstName(),
                 user.getLastName(),
                 user.getRole().name(),
-                user.getRestaurant().getId(),
-                user.getRestaurant().getName()
+                restaurant.getId(),
+                restaurant.getName()
             );
         }
         

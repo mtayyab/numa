@@ -3,6 +3,8 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { authApi } from '@/services/api';
+import WaiterAlerts from '@/components/dashboard/WaiterAlerts';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -10,22 +12,43 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is logged in
-    const token = localStorage.getItem('numa_access_token');
-    if (!token) {
-      toast.error('Please login to access the dashboard');
-      router.push('/auth/login');
-      return;
-    }
+    const fetchUserData = async () => {
+      try {
+        // Small delay to ensure tokens are stored after login redirect
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Check if user is logged in
+        const token = localStorage.getItem('numa_access_token');
+        if (!token) {
+          console.log('No access token found, redirecting to login');
+          toast.error('Please login to access the dashboard');
+          router.push('/auth/login');
+          return;
+        }
 
-    // TODO: Fetch user data from API
-    // For now, just set a mock user
-    setUser({
-      name: 'Restaurant Owner',
-      email: 'owner@restaurant.com',
-      role: 'OWNER'
-    });
-    setLoading(false);
+        console.log('Access token found, fetching user data...');
+        // Fetch user data from API
+        const userData = await authApi.getCurrentUser();
+        console.log('User data fetched successfully:', userData);
+        setUser(userData);
+      } catch (error: any) {
+        console.error('Error fetching user data:', error);
+        // If it's a 401 error, clear tokens and redirect to login
+        if (error.response?.status === 401) {
+          console.log('401 error - clearing tokens and redirecting to login');
+          localStorage.removeItem('numa_access_token');
+          localStorage.removeItem('numa_refresh_token');
+          toast.error('Session expired. Please login again.');
+          router.push('/auth/login');
+        } else {
+          toast.error(error.message || 'Failed to load user data');
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
   }, [router]);
 
   const handleLogout = () => {
@@ -70,6 +93,11 @@ export default function DashboardPage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
+          {/* Waiter Alerts Section */}
+          <div className="mb-8">
+            <WaiterAlerts />
+          </div>
+
           <div className="border-4 border-dashed border-gray-200 rounded-lg p-8">
             <div className="text-center">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">

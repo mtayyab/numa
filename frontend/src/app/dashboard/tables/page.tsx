@@ -3,12 +3,17 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { authApi, tableApi } from '@/services/api';
+import QRCodeDisplay from '@/components/dashboard/QRCodeDisplay';
 
 export default function TableManagementPage() {
   const router = useRouter();
   const [tables, setTables] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddTable, setShowAddTable] = useState(false);
+  const [showQRCode, setShowQRCode] = useState(false);
+  const [selectedTable, setSelectedTable] = useState<any>(null);
+  const [restaurantSlug, setRestaurantSlug] = useState('');
   const [newTable, setNewTable] = useState({ 
     tableNumber: '', 
     capacity: 4, 
@@ -17,73 +22,99 @@ export default function TableManagementPage() {
   });
 
   useEffect(() => {
-    // Check if user is logged in
-    const token = localStorage.getItem('numa_access_token');
-    if (!token) {
-      toast.error('Please login to access this page');
-      router.push('/auth/login');
-      return;
-    }
+    const fetchTablesData = async () => {
+      try {
+        // Check if user is logged in
+        const token = localStorage.getItem('numa_access_token');
+        if (!token) {
+          toast.error('Please login to access this page');
+          router.push('/auth/login');
+          return;
+        }
 
-    // TODO: Fetch tables data from API
-    // For now, just set mock data
-    setTables([
-      {
-        id: '1',
-        tableNumber: 'T-01',
-        capacity: 4,
-        location: 'Main Dining',
-        status: 'AVAILABLE',
-        qrCode: 'QR-TABLE-001',
-        description: 'Window table with city view'
-      },
-      {
-        id: '2',
-        tableNumber: 'T-02',
-        capacity: 2,
-        location: 'Main Dining',
-        status: 'OCCUPIED',
-        qrCode: 'QR-TABLE-002',
-        description: 'Intimate corner table'
-      },
-      {
-        id: '3',
-        tableNumber: 'T-03',
-        capacity: 6,
-        location: 'Private Room',
-        status: 'AVAILABLE',
-        qrCode: 'QR-TABLE-003',
-        description: 'Large family table'
+        // Get current user to get restaurant ID
+        const user = await authApi.getCurrentUser();
+        if (!user.restaurantId) {
+          toast.error('No restaurant associated with this account');
+          router.push('/dashboard');
+          return;
+        }
+
+        // Fetch tables from API
+        const tablesData = await tableApi.getAll(user.restaurantId);
+        setTables(tablesData);
+        
+        // Get restaurant slug for QR code URLs
+        // TODO: Get this from restaurant data
+        setRestaurantSlug('test-restaurant');
+      } catch (error: any) {
+        console.error('Error fetching tables data:', error);
+        toast.error(error.message || 'Failed to load tables data');
+        router.push('/dashboard');
+      } finally {
+        setLoading(false);
       }
-    ]);
-    setLoading(false);
-  }, [router]);
-
-  const handleAddTable = () => {
-    if (!newTable.tableNumber.trim()) {
-      toast.error('Table number is required');
-      return;
-    }
-
-    const table = {
-      id: Date.now().toString(),
-      tableNumber: newTable.tableNumber,
-      capacity: newTable.capacity,
-      location: newTable.location,
-      status: 'AVAILABLE',
-      qrCode: `QR-TABLE-${Date.now()}`,
-      description: newTable.description
     };
 
-    setTables([...tables, table]);
-    setNewTable({ tableNumber: '', capacity: 4, location: '', description: '' });
-    setShowAddTable(false);
-    toast.success('Table added successfully!');
+    fetchTablesData();
+  }, [router]);
+
+  const handleAddTable = async () => {
+    try {
+      if (!newTable.tableNumber.trim()) {
+        toast.error('Table number is required');
+        return;
+      }
+
+      // Get current user to get restaurant ID
+      const user = await authApi.getCurrentUser();
+      if (!user.restaurantId) {
+        toast.error('No restaurant associated with this account');
+        return;
+      }
+
+      const tableData = {
+        tableNumber: newTable.tableNumber,
+        capacity: newTable.capacity,
+        location: newTable.location,
+        description: newTable.description,
+        status: 'AVAILABLE'
+      };
+
+      const newTableData = await tableApi.create(user.restaurantId, tableData);
+      setTables([...tables, newTableData]);
+      setNewTable({ tableNumber: '', capacity: 4, location: '', description: '' });
+      setShowAddTable(false);
+      toast.success('Table added successfully!');
+    } catch (error: any) {
+      console.error('Error adding table:', error);
+      toast.error(error.message || 'Failed to add table');
+    }
   };
 
-  const generateQRCode = (tableId: string) => {
-    // TODO: Implement actual QR code generation
-    toast.success(`QR Code generated for table ${tableId}`);
+  const generateQRCode = async (tableId: string) => {
+    try {
+      // Get current user to get restaurant ID
+      const user = await authApi.getCurrentUser();
+      if (!user.restaurantId) {
+        toast.error('No restaurant associated with this account');
+        return;
+      }
+
+      const qrData = await tableApi.generateQrCode(user.restaurantId, tableId);
+      setTables(tables.map(table => 
+        table.id === tableId ? { ...table, qrCode: qrData.qrCode } : table
+      ));
+      toast.success(`QR Code generated for table ${tableId}`);
+    } catch (error: any) {
+      console.error('Error generating QR code:', error);
+      toast.error(error.message || 'Failed to generate QR code');
+    }
+  };
+
+  const showQRCodeModal = (table: any) => {
+    setSelectedTable(table);
+    setShowQRCode(true);
   };
 
   const getStatusColor = (status: string) => {
@@ -230,14 +261,25 @@ export default function TableManagementPage() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-gray-600">QR Code</p>
-                        <p className="text-sm font-mono text-gray-900">{table.qrCode}</p>
+                        <p className="text-sm font-mono text-gray-900">{table.qrCode || 'Not generated'}</p>
                       </div>
-                      <button
-                        onClick={() => generateQRCode(table.id)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-sm font-medium"
-                      >
-                        Generate QR
-                      </button>
+                      <div className="flex space-x-2">
+                        {table.qrCode ? (
+                          <button
+                            onClick={() => showQRCodeModal(table)}
+                            className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md text-sm font-medium"
+                          >
+                            View QR
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => generateQRCode(table.id)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-sm font-medium"
+                          >
+                            Generate QR
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -265,6 +307,16 @@ export default function TableManagementPage() {
                 Add Your First Table
               </button>
             </div>
+          )}
+
+          {/* QR Code Display Modal */}
+          {showQRCode && selectedTable && (
+            <QRCodeDisplay
+              tableNumber={selectedTable.tableNumber}
+              qrCode={selectedTable.qrCode}
+              restaurantSlug={restaurantSlug}
+              onClose={() => setShowQRCode(false)}
+            />
           )}
         </div>
       </main>
