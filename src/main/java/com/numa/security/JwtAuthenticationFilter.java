@@ -129,8 +129,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // Debug logging
         logger.info("JWT Filter checking path: " + path);
         
-        // Since Spring Boot has context-path: /api/v1, the actual path will be without the context path
-        // So /api/v1/auth/me becomes /auth/me in the filter
+        // Remove context path /api/v1 if present
+        if (path.startsWith("/api/v1")) {
+            path = path.substring("/api/v1".length());
+        }
+        
         boolean shouldSkip = path.startsWith("/actuator/") ||
                path.startsWith("/swagger-ui/") ||
                path.startsWith("/v3/api-docs/") ||
@@ -148,12 +151,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                path.startsWith("/restaurants/by-slug/");
         
         logger.info("Should skip JWT filter for path " + path + ": " + shouldSkip);
-        
-        // Force skip for debugging
-        if (path.equals("/auth/login") || path.equals("/restaurants/register")) {
-            logger.info("FORCING SKIP for path: " + path);
-            return true;
-        }
         
         return shouldSkip;
     }

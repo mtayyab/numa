@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -124,15 +125,22 @@ public class AuthService {
             throw new ValidationException("No authenticated user found");
         }
 
+
         Object principal = authentication.getPrincipal();
+        System.out.println("Principal: " + principal);
         
         if (principal instanceof User) {
             User user = (User) principal;
             
             // Get restaurant ID from JWT token to avoid lazy loading issues
-            UUID restaurantId = jwtUtil.getRestaurantIdFromToken(
-                SecurityContextHolder.getContext().getAuthentication().getCredentials().toString()
-            );
+            UUID restaurantId = authentication.getAuthorities().stream()
+            .map(GrantedAuthority::getAuthority)
+            .filter(auth -> auth.startsWith("RESTAURANT_"))
+            .map(auth -> auth.substring("RESTAURANT_".length()))
+            .map(UUID::fromString)
+            .findFirst()
+            .orElseThrow(() -> new ValidationException("Restaurant ID not found"));
+            System.out.println("Restaurant ID: " + restaurantId);
             
             // Fetch restaurant data separately to avoid lazy loading issues
             Restaurant restaurant = restaurantRepository.findById(restaurantId)

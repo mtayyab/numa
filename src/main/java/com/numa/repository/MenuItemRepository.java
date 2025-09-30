@@ -31,6 +31,18 @@ public interface MenuItemRepository extends JpaRepository<MenuItem, UUID> {
     List<MenuItem> findByCategoryIdOrderBySortOrderAsc(UUID categoryId);
 
     /**
+     * Find items by restaurant ID ordered by sort order
+     */
+    @Query("SELECT i FROM MenuItem i WHERE i.category.restaurant.id = :restaurantId ORDER BY i.sortOrder ASC")
+    List<MenuItem> findByRestaurantIdOrderBySortOrderAsc(@Param("restaurantId") UUID restaurantId);
+
+    /**
+     * Get next sort order for category
+     */
+    @Query("SELECT COALESCE(MAX(i.sortOrder), 0) + 1 FROM MenuItem i WHERE i.category.id = :categoryId")
+    Integer getNextSortOrder(@Param("categoryId") UUID categoryId);
+
+    /**
      * Find active and available items by category
      */
     @Query("SELECT i FROM MenuItem i WHERE i.category.id = :categoryId " +
