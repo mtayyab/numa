@@ -83,6 +83,11 @@ public interface RestaurantTableRepository extends JpaRepository<RestaurantTable
     boolean existsByRestaurantIdAndTableNumber(UUID restaurantId, String tableNumber);
 
     /**
+     * Check if table number exists in restaurant excluding specific table
+     */
+    boolean existsByRestaurantIdAndTableNumberAndIdNot(UUID restaurantId, String tableNumber, UUID tableId);
+
+    /**
      * Check if QR code exists
      */
     boolean existsByQrCode(String qrCode);
