@@ -163,6 +163,7 @@ public class MenuService {
         }
 
         MenuItem item = new MenuItem();
+        item.setRestaurant(category.getRestaurant()); // Set the restaurant from the category
         item.setCategory(category);
         item.setName(request.getName());
         item.setDescription(request.getDescription());
