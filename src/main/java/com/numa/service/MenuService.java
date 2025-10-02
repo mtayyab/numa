@@ -195,9 +195,18 @@ public class MenuService {
         item.setDescription(request.getDescription());
         item.setPrice(request.getPrice());
         item.setImageUrl(request.getImageUrl());
-        item.setSortOrder(request.getSortOrder());
-        item.setIsActive(request.getIsActive());
-        item.setIsAvailable(request.getIsAvailable());
+        // Only update sortOrder if provided in request, otherwise keep existing value
+        if (request.getSortOrder() != null) {
+            item.setSortOrder(request.getSortOrder());
+        }
+        // Only update isActive if provided in request, otherwise keep existing value
+        if (request.getIsActive() != null) {
+            item.setIsActive(request.getIsActive());
+        }
+        // Only update isAvailable if provided in request, otherwise keep existing value
+        if (request.getIsAvailable() != null) {
+            item.setIsAvailable(request.getIsAvailable());
+        }
         item.setAllergens(request.getAllergens());
 
         MenuItem savedItem = menuItemRepository.save(item);
