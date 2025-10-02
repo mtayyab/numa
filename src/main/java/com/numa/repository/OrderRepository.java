@@ -34,6 +34,11 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     Page<Order> findByRestaurantIdOrderByCreatedAtDesc(UUID restaurantId, Pageable pageable);
 
     /**
+     * Find orders by restaurant and status with pagination
+     */
+    List<Order> findByRestaurantIdAndStatusOrderByCreatedAtDesc(UUID restaurantId, OrderStatus status, Pageable pageable);
+
+    /**
      * Find orders by restaurant and status
      */
     List<Order> findByRestaurantIdAndStatusOrderByCreatedAtAsc(UUID restaurantId, OrderStatus status);
