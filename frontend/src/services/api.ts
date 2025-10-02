@@ -231,7 +231,7 @@ export const tableApi = {
   },
 
   generateQrCode: async (restaurantId: string, tableId: string) => {
-    const response = await api.post(`/restaurants/${restaurantId}/tables/${tableId}/qr/generate`);
+    const response = await api.post(`/restaurants/${restaurantId}/tables/${tableId}/qr-code`);
     return response.data;
   },
 };

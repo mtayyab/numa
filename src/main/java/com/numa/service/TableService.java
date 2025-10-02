@@ -78,6 +78,10 @@ public class TableService {
         table.setCapacity(request.getCapacity());
         table.setLocationDescription(request.getLocation());
         table.setStatus(TableStatus.AVAILABLE);
+        
+        // Generate QR code for the table
+        String qrCode = "TBL-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        table.setQrCode(qrCode);
 
         RestaurantTable savedTable = tableRepository.save(table);
         return mapToTableResponse(savedTable);
