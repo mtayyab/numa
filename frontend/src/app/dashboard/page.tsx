@@ -6,6 +6,8 @@ import toast from 'react-hot-toast';
 import { authApi } from '@/services/api';
 import WaiterAlerts from '@/components/dashboard/WaiterAlerts';
 import ActiveSessions from '@/components/dashboard/ActiveSessions';
+import SessionHistory from '@/components/dashboard/SessionHistory';
+import SessionAnalytics from '@/components/dashboard/SessionAnalytics';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -102,6 +104,16 @@ export default function DashboardPage() {
           {/* Active Sessions Section */}
           <div className="mb-8">
             <ActiveSessions restaurantId={user?.restaurantId} />
+          </div>
+
+          {/* Session History Section */}
+          <div className="mb-8">
+            <SessionHistory restaurantId={user?.restaurantId} />
+          </div>
+
+          {/* Session Analytics Section */}
+          <div className="mb-8">
+            <SessionAnalytics restaurantId={user?.restaurantId} />
           </div>
 
           <div className="border-4 border-dashed border-gray-200 rounded-lg p-8">

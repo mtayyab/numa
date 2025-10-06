@@ -12,7 +12,7 @@ import com.numa.domain.enums.OrderStatus;
 import com.numa.repository.DiningSessionRepository;
 import com.numa.repository.SessionGuestRepository;
 import com.numa.repository.OrderRepository;
-// import com.numa.repository.OrderItemRepository; // Will create this repository
+import com.numa.repository.OrderItemRepository;
 import com.numa.repository.RestaurantTableRepository;
 import com.numa.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -45,8 +44,8 @@ public class SessionService {
     @Autowired
     private OrderRepository orderRepository;
     
-    // @Autowired
-    // private OrderItemRepository orderItemRepository; // Will create this repository
+    @Autowired
+    private OrderItemRepository orderItemRepository;
     
     @Autowired
     private RestaurantTableRepository tableRepository;
@@ -177,9 +176,10 @@ public class SessionService {
      * Convert Order to OrderSummary
      */
     private ActiveSessionResponse.OrderSummary convertToOrderSummary(Order order) {
-        // For now, return empty items list since OrderItemRepository doesn't exist yet
-        // TODO: Implement OrderItemRepository and fetch actual order items
-        List<ActiveSessionResponse.OrderItemSummary> itemSummaries = new ArrayList<>();
+        List<OrderItem> items = orderItemRepository.findByOrderIdOrderByCreatedAtAsc(order.getId());
+        List<ActiveSessionResponse.OrderItemSummary> itemSummaries = items.stream()
+                .map(this::convertToOrderItemSummary)
+                .collect(Collectors.toList());
         
         return new ActiveSessionResponse.OrderSummary(
                 order.getId(),
