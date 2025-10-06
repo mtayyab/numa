@@ -104,22 +104,22 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, UUID> {
     List<OrderItem> findWithSpecialInstructions();
 
     /**
-     * Find order items by preparation status
+     * Find order items by status
      */
-    List<OrderItem> findByPreparationStatus(String preparationStatus);
+    List<OrderItem> findByStatus(com.numa.domain.enums.OrderStatus status);
 
     /**
-     * Find order items by estimated ready time range
+     * Find order items by prepared time range
      */
-    @Query("SELECT oi FROM OrderItem oi WHERE oi.estimatedReadyTime BETWEEN :startTime AND :endTime")
-    List<OrderItem> findByEstimatedReadyTimeRange(@Param("startTime") java.time.LocalDateTime startTime,
-                                                 @Param("endTime") java.time.LocalDateTime endTime);
+    @Query("SELECT oi FROM OrderItem oi WHERE oi.preparedAt BETWEEN :startTime AND :endTime")
+    List<OrderItem> findByPreparedTimeRange(@Param("startTime") java.time.LocalDateTime startTime,
+                                           @Param("endTime") java.time.LocalDateTime endTime);
 
     /**
      * Calculate average preparation time by menu item
      */
-    @Query("SELECT oi.menuItem.id, oi.menuItem.name, AVG(TIMESTAMPDIFF(MINUTE, oi.createdAt, oi.readyAt)) as avgPrepTime " +
-           "FROM OrderItem oi WHERE oi.readyAt IS NOT NULL " +
+    @Query("SELECT oi.menuItem.id, oi.menuItem.name, AVG(TIMESTAMPDIFF(MINUTE, oi.createdAt, oi.preparedAt)) as avgPrepTime " +
+           "FROM OrderItem oi WHERE oi.preparedAt IS NOT NULL " +
            "GROUP BY oi.menuItem.id, oi.menuItem.name ORDER BY avgPrepTime ASC")
     List<Object[]> calculateAveragePreparationTimeByMenuItem();
 }
