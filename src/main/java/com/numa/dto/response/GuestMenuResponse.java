@@ -1,40 +1,38 @@
 package com.numa.dto.response;
 
-import com.numa.domain.entity.MenuCategory;
-import com.numa.domain.entity.Restaurant;
-
 import java.util.List;
 
 /**
- * Response DTO for guest menu data
+ * Response DTO for guest menu data.
+ * Uses lightweight DTOs to avoid lazy loading issues.
  */
 public class GuestMenuResponse {
     
-    private Restaurant restaurant;
-    private List<MenuCategory> categories;
+    private GuestRestaurantDTO restaurant;
+    private List<GuestMenuCategoryDTO> categories;
     
     // Constructors
     public GuestMenuResponse() {}
     
-    public GuestMenuResponse(Restaurant restaurant, List<MenuCategory> categories) {
+    public GuestMenuResponse(GuestRestaurantDTO restaurant, List<GuestMenuCategoryDTO> categories) {
         this.restaurant = restaurant;
         this.categories = categories;
     }
     
     // Getters and Setters
-    public Restaurant getRestaurant() {
+    public GuestRestaurantDTO getRestaurant() {
         return restaurant;
     }
     
-    public void setRestaurant(Restaurant restaurant) {
+    public void setRestaurant(GuestRestaurantDTO restaurant) {
         this.restaurant = restaurant;
     }
     
-    public List<MenuCategory> getCategories() {
+    public List<GuestMenuCategoryDTO> getCategories() {
         return categories;
     }
     
-    public void setCategories(List<MenuCategory> categories) {
+    public void setCategories(List<GuestMenuCategoryDTO> categories) {
         this.categories = categories;
     }
 }

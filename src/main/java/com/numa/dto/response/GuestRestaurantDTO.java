@@ -1,22 +1,19 @@
 package com.numa.dto.response;
 
-import com.numa.domain.entity.Restaurant;
 import com.numa.domain.enums.RestaurantStatus;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
- * Response DTO for guest restaurant information.
- * Uses lightweight DTO to avoid lazy loading issues.
+ * Lightweight DTO for guest restaurant information.
+ * Contains only the fields needed for guest interface to avoid lazy loading issues.
  */
-public class GuestRestaurantResponse {
+public class GuestRestaurantDTO {
     private UUID id;
     private String name;
     private String slug;
     private String description;
-    private String email;
     private String phone;
     private String addressLine1;
     private String addressLine2;
@@ -31,8 +28,6 @@ public class GuestRestaurantResponse {
     private String bannerUrl;
     private String brandColor;
     private RestaurantStatus status;
-    private String subscriptionPlan;
-    private LocalDateTime subscriptionExpiresAt;
     private Boolean deliveryEnabled;
     private Boolean takeawayEnabled;
     private Boolean dineInEnabled;
@@ -41,43 +36,42 @@ public class GuestRestaurantResponse {
     private BigDecimal minimumOrderAmount;
     private BigDecimal taxRate;
     private BigDecimal serviceChargeRate;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 
-    public GuestRestaurantResponse() {}
+    public GuestRestaurantDTO() {}
 
-    public GuestRestaurantResponse(Restaurant restaurant) {
-        this.id = restaurant.getId();
-        this.name = restaurant.getName();
-        this.slug = restaurant.getSlug();
-        this.description = restaurant.getDescription();
-        this.email = restaurant.getEmail();
-        this.phone = restaurant.getPhone();
-        this.addressLine1 = restaurant.getAddressLine1();
-        this.addressLine2 = restaurant.getAddressLine2();
-        this.city = restaurant.getCity();
-        this.state = restaurant.getState();
-        this.postalCode = restaurant.getPostalCode();
-        this.country = restaurant.getCountry();
-        this.currencyCode = restaurant.getCurrencyCode();
-        this.languageCode = restaurant.getLanguageCode();
-        this.timezone = restaurant.getTimezone();
-        this.logoUrl = restaurant.getLogoUrl();
-        this.bannerUrl = restaurant.getBannerUrl();
-        this.brandColor = restaurant.getBrandColor();
-        this.status = restaurant.getStatus();
-        this.subscriptionPlan = restaurant.getSubscriptionPlan();
-        this.subscriptionExpiresAt = restaurant.getSubscriptionExpiresAt();
-        this.deliveryEnabled = restaurant.getDeliveryEnabled();
-        this.takeawayEnabled = restaurant.getTakeawayEnabled();
-        this.dineInEnabled = restaurant.getDineInEnabled();
-        this.deliveryRadiusKm = restaurant.getDeliveryRadiusKm();
-        this.deliveryFee = restaurant.getDeliveryFee();
-        this.minimumOrderAmount = restaurant.getMinimumOrderAmount();
-        this.taxRate = restaurant.getTaxRate();
-        this.serviceChargeRate = restaurant.getServiceChargeRate();
-        this.createdAt = restaurant.getCreatedAt();
-        this.updatedAt = restaurant.getUpdatedAt();
+    public GuestRestaurantDTO(UUID id, String name, String slug, String description, String phone,
+                             String addressLine1, String addressLine2, String city, String state,
+                             String postalCode, String country, String currencyCode, String languageCode,
+                             String timezone, String logoUrl, String bannerUrl, String brandColor,
+                             RestaurantStatus status, Boolean deliveryEnabled, Boolean takeawayEnabled,
+                             Boolean dineInEnabled, BigDecimal deliveryRadiusKm, BigDecimal deliveryFee,
+                             BigDecimal minimumOrderAmount, BigDecimal taxRate, BigDecimal serviceChargeRate) {
+        this.id = id;
+        this.name = name;
+        this.slug = slug;
+        this.description = description;
+        this.phone = phone;
+        this.addressLine1 = addressLine1;
+        this.addressLine2 = addressLine2;
+        this.city = city;
+        this.state = state;
+        this.postalCode = postalCode;
+        this.country = country;
+        this.currencyCode = currencyCode;
+        this.languageCode = languageCode;
+        this.timezone = timezone;
+        this.logoUrl = logoUrl;
+        this.bannerUrl = bannerUrl;
+        this.brandColor = brandColor;
+        this.status = status;
+        this.deliveryEnabled = deliveryEnabled;
+        this.takeawayEnabled = takeawayEnabled;
+        this.dineInEnabled = dineInEnabled;
+        this.deliveryRadiusKm = deliveryRadiusKm;
+        this.deliveryFee = deliveryFee;
+        this.minimumOrderAmount = minimumOrderAmount;
+        this.taxRate = taxRate;
+        this.serviceChargeRate = serviceChargeRate;
     }
 
     // Getters and setters
@@ -111,14 +105,6 @@ public class GuestRestaurantResponse {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public String getPhone() {
@@ -233,22 +219,6 @@ public class GuestRestaurantResponse {
         this.status = status;
     }
 
-    public String getSubscriptionPlan() {
-        return subscriptionPlan;
-    }
-
-    public void setSubscriptionPlan(String subscriptionPlan) {
-        this.subscriptionPlan = subscriptionPlan;
-    }
-
-    public LocalDateTime getSubscriptionExpiresAt() {
-        return subscriptionExpiresAt;
-    }
-
-    public void setSubscriptionExpiresAt(LocalDateTime subscriptionExpiresAt) {
-        this.subscriptionExpiresAt = subscriptionExpiresAt;
-    }
-
     public Boolean getDeliveryEnabled() {
         return deliveryEnabled;
     }
@@ -311,21 +281,5 @@ public class GuestRestaurantResponse {
 
     public void setServiceChargeRate(BigDecimal serviceChargeRate) {
         this.serviceChargeRate = serviceChargeRate;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
     }
 }

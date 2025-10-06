@@ -3,6 +3,7 @@ package com.numa.service;
 import com.numa.domain.entity.Restaurant;
 import com.numa.domain.entity.RestaurantTable;
 import com.numa.domain.entity.MenuCategory;
+import com.numa.domain.entity.MenuItem;
 import com.numa.domain.entity.DiningSession;
 import com.numa.domain.entity.SessionGuest;
 import com.numa.domain.entity.Order;
@@ -15,6 +16,9 @@ import com.numa.dto.response.GuestSessionResponse;
 import com.numa.dto.response.GuestOrderResponse;
 import com.numa.dto.response.GuestRestaurantResponse;
 import com.numa.dto.response.GuestTableResponse;
+import com.numa.dto.response.GuestRestaurantDTO;
+import com.numa.dto.response.GuestMenuCategoryDTO;
+import com.numa.dto.response.GuestMenuItemDTO;
 import com.numa.repository.RestaurantRepository;
 import com.numa.repository.RestaurantTableRepository;
 import com.numa.repository.MenuCategoryRepository;
@@ -83,14 +87,13 @@ public class GuestService {
                 .orElseThrow(() -> new ResourceNotFoundException("Restaurant not found with slug: " + slug));
         List<MenuCategory> categories = menuCategoryRepository.findByRestaurantIdAndIsActiveTrueOrderBySortOrderAsc(restaurant.getId());
         
-        // Filter out inactive menu items
-        categories.forEach(category -> {
-            if (category.getMenuItems() != null) {
-                category.getMenuItems().removeIf(item -> !item.getIsActive() || !item.getIsAvailable());
-            }
-        });
+        // Convert to DTOs to avoid lazy loading issues
+        GuestRestaurantDTO restaurantDTO = convertToRestaurantDTO(restaurant);
+        List<GuestMenuCategoryDTO> categoryDTOs = categories.stream()
+                .map(this::convertToCategoryDTO)
+                .collect(Collectors.toList());
         
-        return new GuestMenuResponse(restaurant, categories);
+        return new GuestMenuResponse(restaurantDTO, categoryDTOs);
     }
 
     /**
@@ -270,5 +273,82 @@ public class GuestService {
     private DiningSession createNewSession(RestaurantTable table) {
         DiningSession session = new DiningSession(table.getRestaurant(), table);
         return sessionRepository.save(session);
+    }
+
+    /**
+     * Convert Restaurant entity to GuestRestaurantDTO
+     */
+    private GuestRestaurantDTO convertToRestaurantDTO(Restaurant restaurant) {
+        return new GuestRestaurantDTO(
+                restaurant.getId(),
+                restaurant.getName(),
+                restaurant.getSlug(),
+                restaurant.getDescription(),
+                restaurant.getPhone(),
+                restaurant.getAddressLine1(),
+                restaurant.getAddressLine2(),
+                restaurant.getCity(),
+                restaurant.getState(),
+                restaurant.getPostalCode(),
+                restaurant.getCountry(),
+                restaurant.getCurrencyCode(),
+                restaurant.getLanguageCode(),
+                restaurant.getTimezone(),
+                restaurant.getLogoUrl(),
+                restaurant.getBannerUrl(),
+                restaurant.getBrandColor(),
+                restaurant.getStatus(),
+                restaurant.getDeliveryEnabled(),
+                restaurant.getTakeawayEnabled(),
+                restaurant.getDineInEnabled(),
+                restaurant.getDeliveryRadiusKm(),
+                restaurant.getDeliveryFee(),
+                restaurant.getMinimumOrderAmount(),
+                restaurant.getTaxRate(),
+                restaurant.getServiceChargeRate()
+        );
+    }
+
+    /**
+     * Convert MenuCategory entity to GuestMenuCategoryDTO
+     */
+    private GuestMenuCategoryDTO convertToCategoryDTO(MenuCategory category) {
+        // Filter out inactive menu items and convert to DTOs
+        List<GuestMenuItemDTO> menuItemDTOs = category.getMenuItems().stream()
+                .filter(item -> item.getIsActive() && item.getIsAvailable())
+                .map(this::convertToMenuItemDTO)
+                .collect(Collectors.toList());
+
+        return new GuestMenuCategoryDTO(
+                category.getId(),
+                category.getName(),
+                category.getDescription(),
+                category.getImageUrl(),
+                category.getSortOrder(),
+                category.getIsActive(),
+                category.getAvailableFrom(),
+                category.getAvailableUntil(),
+                menuItemDTOs
+        );
+    }
+
+    /**
+     * Convert MenuItem entity to GuestMenuItemDTO
+     */
+    private GuestMenuItemDTO convertToMenuItemDTO(MenuItem item) {
+        List<String> allergens = item.getAllergens() != null ? 
+                List.of(item.getAllergens().split(",")) : List.of();
+        
+        return new GuestMenuItemDTO(
+                item.getId(),
+                item.getName(),
+                item.getDescription(),
+                item.getPrice(),
+                item.getImageUrl(),
+                item.getSortOrder(),
+                item.getIsActive(),
+                item.getIsAvailable(),
+                allergens
+        );
     }
 }
