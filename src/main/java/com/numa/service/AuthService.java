@@ -144,22 +144,23 @@ public class AuthService {
             
             // Fetch restaurant basic info to avoid lazy loading issues
             System.out.println("Looking for restaurant with ID: " + restaurantId);
-            Restaurant restaurant = restaurantRepository.findById(restaurantId)
-                .orElseThrow(() -> new ResourceNotFoundException("Restaurant not found with id: " + restaurantId));
+            Object[] restaurantInfo = restaurantRepository.findBasicInfoById(restaurantId);
+            if (restaurantInfo == null || restaurantInfo.length < 3) {
+                throw new ResourceNotFoundException("Restaurant not found with id: " + restaurantId);
+            }
             
-            System.out.println("Found restaurant: " + restaurant.getName());
+            System.out.println("Found restaurant: " + restaurantInfo[1]);
             
             // Return user info without sensitive data
-            // Only access basic fields to avoid lazy loading
             return new UserInfoResponse(
                 user.getId(),
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),
                 user.getRole().name(),
-                restaurant.getId(),
-                restaurant.getName(),
-                restaurant.getSlug()
+                (UUID) restaurantInfo[0],
+                (String) restaurantInfo[1],
+                (String) restaurantInfo[2]
             );
         }
         
