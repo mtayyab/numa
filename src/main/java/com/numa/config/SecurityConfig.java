@@ -116,6 +116,7 @@ public class SecurityConfig {
                 
                 // Guest session endpoints (no auth required)
                 .requestMatchers("/guest/**").permitAll()
+                .requestMatchers("/api/v1/guest/**").permitAll()
                 
                 // QR code access
                 .requestMatchers(HttpMethod.GET, "/qr/**").permitAll()

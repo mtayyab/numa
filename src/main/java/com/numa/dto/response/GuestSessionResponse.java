@@ -1,14 +1,11 @@
 package com.numa.dto.response;
 
-import com.numa.domain.entity.DiningSession;
-import com.numa.domain.entity.SessionGuest;
-import com.numa.domain.entity.Order;
-
 import java.util.List;
 import java.util.UUID;
 
 /**
- * Response DTO for guest session data
+ * Response DTO for guest session data.
+ * Uses lightweight DTOs to avoid lazy loading issues.
  */
 public class GuestSessionResponse {
     
@@ -16,17 +13,17 @@ public class GuestSessionResponse {
     private String sessionToken;
     private String guestToken;
     private String guestName;
-    private DiningSession session;
-    private List<SessionGuest> guests;
-    private List<Order> cartItems;
-    private List<Order> orders;
+    private GuestDiningSessionDTO session;
+    private List<GuestSessionGuestDTO> guests;
+    private List<GuestOrderResponse> cartItems;
+    private List<GuestOrderResponse> orders;
     
     // Constructors
     public GuestSessionResponse() {}
     
     public GuestSessionResponse(UUID sessionId, String sessionToken, String guestToken, String guestName, 
-                               DiningSession session, List<SessionGuest> guests, 
-                               List<Order> cartItems, List<Order> orders) {
+                               GuestDiningSessionDTO session, List<GuestSessionGuestDTO> guests, 
+                               List<GuestOrderResponse> cartItems, List<GuestOrderResponse> orders) {
         this.sessionId = sessionId;
         this.sessionToken = sessionToken;
         this.guestToken = guestToken;
@@ -70,35 +67,35 @@ public class GuestSessionResponse {
         this.guestName = guestName;
     }
     
-    public DiningSession getSession() {
+    public GuestDiningSessionDTO getSession() {
         return session;
     }
     
-    public void setSession(DiningSession session) {
+    public void setSession(GuestDiningSessionDTO session) {
         this.session = session;
     }
     
-    public List<SessionGuest> getGuests() {
+    public List<GuestSessionGuestDTO> getGuests() {
         return guests;
     }
     
-    public void setGuests(List<SessionGuest> guests) {
+    public void setGuests(List<GuestSessionGuestDTO> guests) {
         this.guests = guests;
     }
     
-    public List<Order> getCartItems() {
+    public List<GuestOrderResponse> getCartItems() {
         return cartItems;
     }
     
-    public void setCartItems(List<Order> cartItems) {
+    public void setCartItems(List<GuestOrderResponse> cartItems) {
         this.cartItems = cartItems;
     }
     
-    public List<Order> getOrders() {
+    public List<GuestOrderResponse> getOrders() {
         return orders;
     }
     
-    public void setOrders(List<Order> orders) {
+    public void setOrders(List<GuestOrderResponse> orders) {
         this.orders = orders;
     }
 }

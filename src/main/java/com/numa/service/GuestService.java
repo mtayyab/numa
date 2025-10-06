@@ -19,6 +19,8 @@ import com.numa.dto.response.GuestTableResponse;
 import com.numa.dto.response.GuestRestaurantDTO;
 import com.numa.dto.response.GuestMenuCategoryDTO;
 import com.numa.dto.response.GuestMenuItemDTO;
+import com.numa.dto.response.GuestDiningSessionDTO;
+import com.numa.dto.response.GuestSessionGuestDTO;
 import com.numa.repository.RestaurantRepository;
 import com.numa.repository.RestaurantTableRepository;
 import com.numa.repository.MenuCategoryRepository;
@@ -117,15 +119,27 @@ public class GuestService {
         List<Order> cartItems = orderRepository.findBySessionIdAndStatus(session.getId(), OrderStatus.PENDING);
         List<Order> orders = orderRepository.findBySessionIdAndStatusNot(session.getId(), OrderStatus.PENDING);
         
+        // Convert entities to DTOs to avoid lazy loading issues
+        GuestDiningSessionDTO sessionDTO = convertToDiningSessionDTO(session);
+        List<GuestSessionGuestDTO> guestDTOs = guests.stream()
+                .map(this::convertToSessionGuestDTO)
+                .collect(Collectors.toList());
+        List<GuestOrderResponse> cartItemDTOs = cartItems.stream()
+                .map(this::convertToOrderResponse)
+                .collect(Collectors.toList());
+        List<GuestOrderResponse> orderDTOs = orders.stream()
+                .map(this::convertToOrderResponse)
+                .collect(Collectors.toList());
+        
         return new GuestSessionResponse(
                 session.getId(),
                 session.getSessionCode(),
                 guest.getJoinToken(),
                 guest.getGuestName(),
-                session,
-                guests,
-                cartItems,
-                orders
+                sessionDTO,
+                guestDTOs,
+                cartItemDTOs,
+                orderDTOs
         );
     }
 
@@ -140,15 +154,27 @@ public class GuestService {
         List<Order> cartItems = orderRepository.findBySessionIdAndStatus(sessionId, OrderStatus.PENDING);
         List<Order> orders = orderRepository.findBySessionIdAndStatusNot(sessionId, OrderStatus.PENDING);
         
+        // Convert entities to DTOs to avoid lazy loading issues
+        GuestDiningSessionDTO sessionDTO = convertToDiningSessionDTO(session);
+        List<GuestSessionGuestDTO> guestDTOs = guests.stream()
+                .map(this::convertToSessionGuestDTO)
+                .collect(Collectors.toList());
+        List<GuestOrderResponse> cartItemDTOs = cartItems.stream()
+                .map(this::convertToOrderResponse)
+                .collect(Collectors.toList());
+        List<GuestOrderResponse> orderDTOs = orders.stream()
+                .map(this::convertToOrderResponse)
+                .collect(Collectors.toList());
+        
         return new GuestSessionResponse(
                 session.getId(),
                 session.getSessionCode(),
                 null, // No guest token for general session info
                 null,
-                session,
-                guests,
-                cartItems,
-                orders
+                sessionDTO,
+                guestDTOs,
+                cartItemDTOs,
+                orderDTOs
         );
     }
 
@@ -354,6 +380,64 @@ public class GuestService {
                 item.getIsSpicy(),
                 item.getSpiceLevel(),
                 allergens
+        );
+    }
+
+    /**
+     * Convert DiningSession entity to GuestDiningSessionDTO
+     */
+    private GuestDiningSessionDTO convertToDiningSessionDTO(DiningSession session) {
+        return new GuestDiningSessionDTO(
+                session.getId(),
+                session.getSessionCode(),
+                session.getStatus(),
+                session.getGuestCount(),
+                session.getHostName(),
+                session.getHostPhone(),
+                session.getSpecialRequests(),
+                session.getTotalAmount(),
+                session.getTipAmount(),
+                session.getPaymentStatus(),
+                session.getWaiterCalled(),
+                session.getWaiterCallTime(),
+                session.getWaiterResponseTime(),
+                session.getStartedAt(),
+                session.getEndedAt(),
+                session.getCreatedAt(),
+                session.getUpdatedAt()
+        );
+    }
+
+    /**
+     * Convert SessionGuest entity to GuestSessionGuestDTO
+     */
+    private GuestSessionGuestDTO convertToSessionGuestDTO(SessionGuest guest) {
+        return new GuestSessionGuestDTO(
+                guest.getId(),
+                guest.getGuestName(),
+                guest.getGuestPhone(),
+                guest.getIsHost(),
+                guest.getJoinToken(),
+                guest.getJoinedAt(),
+                guest.getLastActivityAt(),
+                guest.getCreatedAt(),
+                guest.getUpdatedAt()
+        );
+    }
+
+    /**
+     * Convert Order entity to GuestOrderResponse
+     */
+    private GuestOrderResponse convertToOrderResponse(Order order) {
+        return new GuestOrderResponse(
+                order.getId(),
+                order.getSessionId(),
+                order.getCustomerName(),
+                order.getStatus(),
+                order.getTotalAmount(),
+                order.getCreatedAt(),
+                null, // No estimated ready time in current entity
+                List.of() // In real implementation, populate order items
         );
     }
 }
