@@ -14,6 +14,7 @@ public class GuestSessionResponse {
     private String guestToken;
     private String guestName;
     private GuestDiningSessionDTO session;
+    private GuestTableResponse table;
     private List<GuestSessionGuestDTO> guests;
     private List<GuestOrderResponse> cartItems;
     private List<GuestOrderResponse> orders;
@@ -22,13 +23,14 @@ public class GuestSessionResponse {
     public GuestSessionResponse() {}
     
     public GuestSessionResponse(UUID sessionId, String sessionToken, String guestToken, String guestName, 
-                               GuestDiningSessionDTO session, List<GuestSessionGuestDTO> guests, 
+                               GuestDiningSessionDTO session, GuestTableResponse table, List<GuestSessionGuestDTO> guests, 
                                List<GuestOrderResponse> cartItems, List<GuestOrderResponse> orders) {
         this.sessionId = sessionId;
         this.sessionToken = sessionToken;
         this.guestToken = guestToken;
         this.guestName = guestName;
         this.session = session;
+        this.table = table;
         this.guests = guests;
         this.cartItems = cartItems;
         this.orders = orders;
@@ -73,6 +75,14 @@ public class GuestSessionResponse {
     
     public void setSession(GuestDiningSessionDTO session) {
         this.session = session;
+    }
+    
+    public GuestTableResponse getTable() {
+        return table;
+    }
+    
+    public void setTable(GuestTableResponse table) {
+        this.table = table;
     }
     
     public List<GuestSessionGuestDTO> getGuests() {

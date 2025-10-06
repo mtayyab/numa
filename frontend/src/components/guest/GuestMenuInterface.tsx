@@ -164,14 +164,13 @@ export default function GuestMenuInterface({
 
       if (sessionCode) {
         // Join existing session
-        const session = await guestApi.getSession(sessionCode);
-        const guestData = await guestApi.joinSession({
+        const sessionResponse = await guestApi.joinSession({
           tableQrCode: qrCode,
           guestName: newGuestName || guestName,
           restaurantId: restaurant.id
         });
-        setCurrentSession({ ...session, currentGuest: guestData });
-        toast.success(`Joined session for ${session.table.tableNumber}`);
+        setCurrentSession(sessionResponse);
+        toast.success(`Joined session for ${table.tableNumber}`);
       } else {
         // Create new session
         const session = await guestApi.joinSession({

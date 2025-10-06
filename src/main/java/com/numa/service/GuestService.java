@@ -160,12 +160,16 @@ public class GuestService {
                 .map(this::convertToOrderResponse)
                 .collect(Collectors.toList());
         
+        // Get table information
+        GuestTableResponse joinTableResponse = new GuestTableResponse(table);
+        
         return new GuestSessionResponse(
                 session.getId(),
                 session.getSessionCode(),
                 guest.getJoinToken(),
                 guest.getGuestName(),
                 sessionDTO,
+                joinTableResponse,
                 guestDTOs,
                 cartItemDTOs,
                 orderDTOs
@@ -195,12 +199,16 @@ public class GuestService {
                 .map(this::convertToOrderResponse)
                 .collect(Collectors.toList());
         
+        // Get table information
+        GuestTableResponse tableResponse = new GuestTableResponse(session.getTable());
+        
         return new GuestSessionResponse(
                 session.getId(),
                 session.getSessionCode(),
                 null, // No guest token for general session info
                 null,
                 sessionDTO,
+                tableResponse,
                 guestDTOs,
                 cartItemDTOs,
                 orderDTOs
@@ -230,12 +238,16 @@ public class GuestService {
                 .map(this::convertToOrderResponse)
                 .collect(Collectors.toList());
         
+        // Get table information
+        GuestTableResponse tableResponse = new GuestTableResponse(session.getTable());
+        
         return new GuestSessionResponse(
                 session.getId(),
                 session.getSessionCode(),
                 null, // No guest token for general session info
                 null,
                 sessionDTO,
+                tableResponse,
                 guestDTOs,
                 cartItemDTOs,
                 orderDTOs

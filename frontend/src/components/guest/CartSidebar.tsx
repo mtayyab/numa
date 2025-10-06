@@ -73,10 +73,10 @@ export default function CartSidebar({
           {session && (
             <div className="bg-blue-50 border-b border-blue-200 px-6 py-3">
               <div className="text-sm text-blue-800">
-                <strong>Table {session.table.tableNumber}</strong> • Session: {session.sessionCode}
+                <strong>Table {session.table.tableNumber}</strong> • Session: {session.session.sessionCode}
               </div>
               <div className="text-xs text-blue-600 mt-1">
-                {session.guestCount} guests in this session
+                {session.session.guestCount} guests in this session
               </div>
             </div>
           )}
