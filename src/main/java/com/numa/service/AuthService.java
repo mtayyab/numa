@@ -142,9 +142,11 @@ public class AuthService {
             .orElseThrow(() -> new ValidationException("Restaurant ID not found"));
             System.out.println("Restaurant ID: " + restaurantId);
             
-            // Fetch restaurant data separately to avoid lazy loading issues
-            Restaurant restaurant = restaurantRepository.findById(restaurantId)
-                .orElseThrow(() -> new ResourceNotFoundException("Restaurant not found"));
+            // Fetch restaurant basic info to avoid lazy loading issues
+            Object[] restaurantInfo = restaurantRepository.findBasicInfoById(restaurantId);
+            if (restaurantInfo == null || restaurantInfo.length < 3) {
+                throw new ResourceNotFoundException("Restaurant not found");
+            }
             
             // Return user info without sensitive data
             return new UserInfoResponse(
@@ -153,9 +155,9 @@ public class AuthService {
                 user.getFirstName(),
                 user.getLastName(),
                 user.getRole().name(),
-                restaurant.getId(),
-                restaurant.getName(),
-                restaurant.getSlug()
+                (UUID) restaurantInfo[0],
+                (String) restaurantInfo[1],
+                (String) restaurantInfo[2]
             );
         }
         

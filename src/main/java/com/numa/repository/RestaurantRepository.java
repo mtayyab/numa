@@ -110,4 +110,10 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, UUID> {
     @Query("SELECT DISTINCT r FROM Restaurant r " +
            "JOIN r.orders o WHERE o.createdAt >= :thirtyDaysAgo")
     List<Restaurant> findRestaurantsWithRecentActivity(@Param("thirtyDaysAgo") LocalDateTime thirtyDaysAgo);
+
+    /**
+     * Get restaurant basic info by ID (only id, name, slug to avoid lazy loading)
+     */
+    @Query("SELECT r.id, r.name, r.slug FROM Restaurant r WHERE r.id = :id")
+    Object[] findBasicInfoById(@Param("id") UUID id);
 }
