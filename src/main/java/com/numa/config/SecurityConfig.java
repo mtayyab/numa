@@ -25,7 +25,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Security configuration for the Numa platform.
@@ -104,40 +103,39 @@ public class SecurityConfig {
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 
                 // Authentication endpoints
-                .requestMatchers(HttpMethod.POST, "/auth/register", "/auth/login", "/auth/refresh").permitAll()
-                .requestMatchers(HttpMethod.POST, "/auth/forgot-password", "/auth/reset-password").permitAll()
-                .requestMatchers(HttpMethod.GET, "/auth/verify-email").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/v1/auth/register", "/api/v1/auth/login", "/api/v1/auth/refresh").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/v1/auth/forgot-password", "/api/v1/auth/reset-password").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/auth/verify-email").permitAll()
                 
                 // Restaurant onboarding (must be before general restaurant rules)
-                .requestMatchers(HttpMethod.POST, "/restaurants/register").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/v1/restaurants/register").permitAll()
                 
                 // Public menu access (for guests)
-                .requestMatchers(HttpMethod.GET, "/public/restaurants/*/menu").permitAll()
-                .requestMatchers(HttpMethod.GET, "/public/restaurants/*/tables/*/qr").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/public/restaurants/*/menu").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/public/restaurants/*/tables/*/qr").permitAll()
                 
                 // Guest session endpoints (no auth required)
-                .requestMatchers("/guest/**").permitAll()
                 .requestMatchers("/api/v1/guest/**").permitAll()
                 
                 // QR code access
-                .requestMatchers(HttpMethod.GET, "/qr/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/qr/**").permitAll()
                 
                 // File uploads
-                .requestMatchers(HttpMethod.POST, "/files/upload").hasAnyRole("OWNER", "MANAGER")
+                .requestMatchers(HttpMethod.POST, "/api/v1/files/upload").hasAnyRole("OWNER", "MANAGER")
                 
                 // Restaurant management (authenticated users only) - specific patterns first
-                .requestMatchers("/restaurants/{id}/**").authenticated()
-                .requestMatchers("/restaurants/search").permitAll()
-                .requestMatchers("/restaurants/active").permitAll()
-                .requestMatchers("/restaurants/by-slug/{slug}").permitAll()
-                .requestMatchers("/menu/**").authenticated()
-                .requestMatchers("/tables/**").authenticated()
-                .requestMatchers("/orders/**").authenticated()
-                .requestMatchers("/sessions/**").authenticated()
-                .requestMatchers("/analytics/**").authenticated()
+                .requestMatchers("/api/v1/restaurants/{id}/**").authenticated()
+                .requestMatchers("/api/v1/restaurants/search").permitAll()
+                .requestMatchers("/api/v1/restaurants/active").permitAll()
+                .requestMatchers("/api/v1/restaurants/by-slug/{slug}").permitAll()
+                .requestMatchers("/api/v1/menu/**").authenticated()
+                .requestMatchers("/api/v1/tables/**").authenticated()
+                .requestMatchers("/api/v1/orders/**").authenticated()
+                .requestMatchers("/api/v1/sessions/**").authenticated()
+                .requestMatchers("/api/v1/analytics/**").authenticated()
                 
                 // Admin endpoints
-                .requestMatchers("/admin/**").hasRole("OWNER")
+                .requestMatchers("/api/v1/admin/**").hasRole("OWNER")
                 
                 // All other endpoints require authentication
                 .anyRequest().authenticated()
