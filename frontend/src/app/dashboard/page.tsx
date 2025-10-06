@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { authApi } from '@/services/api';
 import WaiterAlerts from '@/components/dashboard/WaiterAlerts';
+import ActiveSessions from '@/components/dashboard/ActiveSessions';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -96,6 +97,11 @@ export default function DashboardPage() {
           {/* Waiter Alerts Section */}
           <div className="mb-8">
             <WaiterAlerts />
+          </div>
+
+          {/* Active Sessions Section */}
+          <div className="mb-8">
+            <ActiveSessions restaurantId={user?.restaurantId} />
           </div>
 
           <div className="border-4 border-dashed border-gray-200 rounded-lg p-8">

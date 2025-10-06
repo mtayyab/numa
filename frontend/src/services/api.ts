@@ -339,12 +339,24 @@ export const sessionApi = {
 
   // Restaurant session management
   getActiveSessions: async (restaurantId: string) => {
-    const response = await api.get(`/restaurants/${restaurantId}/sessions/active`);
+    const response = await api.get(`/sessions/restaurant/${restaurantId}/active`);
+    return response.data;
+  },
+
+  getSessionHistory: async (restaurantId: string, page: number = 0, size: number = 20) => {
+    const response = await api.get(`/sessions/restaurant/${restaurantId}/history`, {
+      params: { page, size }
+    });
+    return response.data;
+  },
+
+  getSessionDetails: async (sessionId: string) => {
+    const response = await api.get(`/sessions/${sessionId}/details`);
     return response.data;
   },
 
   closeSession: async (restaurantId: string, sessionId: string) => {
-    const response = await api.post(`/restaurants/${restaurantId}/sessions/${sessionId}/close`);
+    const response = await api.post(`/sessions/${sessionId}/end`);
     return response.data;
   },
 };
