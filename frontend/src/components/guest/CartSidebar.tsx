@@ -2,12 +2,12 @@
 
 import { useState } from 'react';
 import { XMarkIcon, PlusIcon, MinusIcon, TrashIcon } from '@heroicons/react/24/outline';
-import { CartItem, Restaurant, DiningSession } from '@/types';
+import { CartItem, Restaurant, GuestSessionResponse } from '@/types';
 
 interface CartSidebarProps {
   items: CartItem[];
   restaurant: Restaurant;
-  session: DiningSession | null;
+  session: GuestSessionResponse | null;
   subtotal: number;
   taxAmount: number;
   serviceCharge: number;

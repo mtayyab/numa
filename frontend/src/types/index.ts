@@ -197,6 +197,37 @@ export interface DiningSession {
   updatedAt: string;
 }
 
+// Guest session response structure from backend
+export interface GuestSessionResponse {
+  sessionId: string;
+  sessionToken: string;
+  guestToken: string;
+  guestName: string;
+  session: {
+    id: string;
+    sessionCode: string;
+    status: SessionStatus;
+    guestCount: number;
+    hostName?: string;
+    hostPhone?: string;
+    specialRequests?: string;
+    totalAmount: number;
+    tipAmount: number;
+    paymentStatus: string;
+    waiterCalled: boolean;
+    waiterCallTime?: string;
+    waiterResponseTime?: string;
+    startedAt: string;
+    endedAt?: string;
+    createdAt: string;
+    updatedAt: string;
+  };
+  table: RestaurantTable;
+  guests: SessionGuest[];
+  cartItems: Order[];
+  orders: Order[];
+}
+
 export interface SessionGuest {
   id: string;
   sessionId: string;
