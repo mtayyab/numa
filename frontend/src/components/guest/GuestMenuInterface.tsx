@@ -43,14 +43,16 @@ export default function GuestMenuInterface({
   });
   const [currentSession, setCurrentSession] = useState<any>(null);
   const [guestName, setGuestName] = useState('');
+  const [activeSessionInfo, setActiveSessionInfo] = useState<any>(null);
 
   // Fetch restaurant and table data
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [restaurantData, tableData] = await Promise.all([
+        const [restaurantData, tableData, sessionInfo] = await Promise.all([
           guestApi.getRestaurantBySlug(restaurantSlug),
           guestApi.getTableByQrCode(qrCode),
+          guestApi.getActiveSessionForTable(qrCode),
         ]);
         
         // Verify the table belongs to the restaurant
@@ -61,6 +63,7 @@ export default function GuestMenuInterface({
         
         setRestaurant(restaurantData);
         setTable(tableData);
+        setActiveSessionInfo(sessionInfo);
       } catch (error) {
         console.error('Error fetching restaurant/table data:', error);
         toast.error('Failed to load restaurant data');
@@ -384,6 +387,7 @@ export default function GuestMenuInterface({
       {showSessionJoin && (
         <SessionJoinModal
           table={table}
+          activeSessionInfo={activeSessionInfo}
           onJoinSession={handleSessionJoin}
           onClose={() => setShowSessionJoin(false)}
         />

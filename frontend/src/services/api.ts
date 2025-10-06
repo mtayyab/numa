@@ -248,6 +248,11 @@ export const guestApi = {
     return response.data;
   },
 
+  getActiveSessionForTable: async (qrCode: string) => {
+    const response = await api.get(`/guest/tables/${qrCode}/active-session`);
+    return response.data;
+  },
+
   getPublicMenu: async (slug: string) => {
     const response = await api.get(`/guest/restaurants/${slug}/menu`);
     return response.data;

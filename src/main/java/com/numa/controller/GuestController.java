@@ -65,6 +65,21 @@ public class GuestController {
     }
 
     /**
+     * Check for active session on a table
+     */
+    @Operation(summary = "Check Active Session", description = "Check if there's an active session on a table")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Session status retrieved"),
+            @ApiResponse(responseCode = "404", description = "Table not found")
+    })
+    @GetMapping("/tables/{qrCode}/active-session")
+    public ResponseEntity<Object> getActiveSessionForTable(
+            @Parameter(description = "Table QR code") @PathVariable String qrCode) {
+        Object sessionInfo = guestService.getActiveSessionForTable(qrCode);
+        return ResponseEntity.ok(sessionInfo);
+    }
+
+    /**
      * Get public menu for a restaurant
      */
     @Operation(summary = "Get Public Menu", description = "Get public menu for a restaurant (only active items)")

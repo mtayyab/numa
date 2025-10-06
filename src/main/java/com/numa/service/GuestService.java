@@ -35,6 +35,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -79,6 +81,33 @@ public class GuestService {
         RestaurantTable table = tableRepository.findByQrCode(qrCode)
                 .orElseThrow(() -> new ResourceNotFoundException("Table not found with QR code: " + qrCode));
         return new GuestTableResponse(table);
+    }
+
+    /**
+     * Check for active session on a table
+     */
+    public Object getActiveSessionForTable(String qrCode) {
+        RestaurantTable table = tableRepository.findByQrCode(qrCode)
+                .orElseThrow(() -> new ResourceNotFoundException("Table not found with QR code: " + qrCode));
+        
+        // Check if there's an active session for this table
+        Optional<DiningSession> activeSession = sessionRepository.findByTableIdAndStatus(table.getId(), SessionStatus.ACTIVE);
+        
+        if (activeSession.isPresent()) {
+            DiningSession session = activeSession.get();
+            return Map.of(
+                "hasActiveSession", true,
+                "sessionId", session.getId(),
+                "sessionCode", session.getSessionCode(),
+                "guestCount", session.getGuestCount(),
+                "hostName", session.getHostName() != null ? session.getHostName() : "Unknown",
+                "startedAt", session.getStartedAt()
+            );
+        } else {
+            return Map.of(
+                "hasActiveSession", false
+            );
+        }
     }
 
     /**
