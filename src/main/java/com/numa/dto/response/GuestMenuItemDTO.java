@@ -17,13 +17,20 @@ public class GuestMenuItemDTO {
     private Integer sortOrder;
     private Boolean isActive;
     private Boolean isAvailable;
+    private Boolean isVegetarian;
+    private Boolean isVegan;
+    private Boolean isGlutenFree;
+    private Boolean isSpicy;
+    private Integer spiceLevel;
     private List<String> allergens;
 
     public GuestMenuItemDTO() {}
 
     public GuestMenuItemDTO(UUID id, String name, String description, BigDecimal price,
                           String imageUrl, Integer sortOrder, Boolean isActive,
-                          Boolean isAvailable, List<String> allergens) {
+                          Boolean isAvailable, Boolean isVegetarian, Boolean isVegan,
+                          Boolean isGlutenFree, Boolean isSpicy, Integer spiceLevel,
+                          List<String> allergens) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -32,6 +39,11 @@ public class GuestMenuItemDTO {
         this.sortOrder = sortOrder;
         this.isActive = isActive;
         this.isAvailable = isAvailable;
+        this.isVegetarian = isVegetarian;
+        this.isVegan = isVegan;
+        this.isGlutenFree = isGlutenFree;
+        this.isSpicy = isSpicy;
+        this.spiceLevel = spiceLevel;
         this.allergens = allergens;
     }
 
@@ -98,6 +110,46 @@ public class GuestMenuItemDTO {
 
     public void setIsAvailable(Boolean isAvailable) {
         this.isAvailable = isAvailable;
+    }
+
+    public Boolean getIsVegetarian() {
+        return isVegetarian;
+    }
+
+    public void setIsVegetarian(Boolean isVegetarian) {
+        this.isVegetarian = isVegetarian;
+    }
+
+    public Boolean getIsVegan() {
+        return isVegan;
+    }
+
+    public void setIsVegan(Boolean isVegan) {
+        this.isVegan = isVegan;
+    }
+
+    public Boolean getIsGlutenFree() {
+        return isGlutenFree;
+    }
+
+    public void setIsGlutenFree(Boolean isGlutenFree) {
+        this.isGlutenFree = isGlutenFree;
+    }
+
+    public Boolean getIsSpicy() {
+        return isSpicy;
+    }
+
+    public void setIsSpicy(Boolean isSpicy) {
+        this.isSpicy = isSpicy;
+    }
+
+    public Integer getSpiceLevel() {
+        return spiceLevel;
+    }
+
+    public void setSpiceLevel(Integer spiceLevel) {
+        this.spiceLevel = spiceLevel;
     }
 
     public List<String> getAllergens() {

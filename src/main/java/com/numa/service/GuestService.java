@@ -348,6 +348,11 @@ public class GuestService {
                 item.getSortOrder(),
                 item.getIsActive(),
                 item.getIsAvailable(),
+                item.getIsVegetarian(),
+                item.getIsVegan(),
+                item.getIsGlutenFree(),
+                item.getIsSpicy(),
+                item.getSpiceLevel(),
                 allergens
         );
     }

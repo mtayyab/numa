@@ -71,12 +71,15 @@ export default function GuestMenuInterface({
   }, [restaurantSlug, qrCode]);
 
   // Fetch menu data
-  const { data: menuCategories, isLoading, error } = useQuery({
+  const { data: menuData, isLoading, error } = useQuery({
     queryKey: ['menu', restaurantSlug],
     queryFn: () => menuApi.getPublicMenu(restaurantSlug),
     staleTime: 5 * 60 * 1000, // 5 minutes
     enabled: !!restaurant, // Only fetch when restaurant is loaded
   });
+
+  // Extract categories from the menu data
+  const menuCategories = menuData?.categories || [];
 
   // Filter menu items based on search and dietary preferences
   const filteredCategories = menuCategories?.filter((category: MenuCategory) => {
