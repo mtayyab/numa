@@ -6,7 +6,6 @@ import {
   ClockIcon,
   UsersIcon,
   CurrencyDollarIcon,
-  TrendingUpIcon,
   CalendarIcon
 } from '@heroicons/react/24/outline';
 import { sessionApi } from '@/services/api';
