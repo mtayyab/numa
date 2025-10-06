@@ -14,6 +14,7 @@ import com.numa.dto.response.GuestMenuResponse;
 import com.numa.dto.response.GuestSessionResponse;
 import com.numa.dto.response.GuestOrderResponse;
 import com.numa.dto.response.GuestRestaurantResponse;
+import com.numa.dto.response.GuestTableResponse;
 import com.numa.repository.RestaurantRepository;
 import com.numa.repository.RestaurantTableRepository;
 import com.numa.repository.MenuCategoryRepository;
@@ -68,9 +69,10 @@ public class GuestService {
     /**
      * Get table by QR code
      */
-    public RestaurantTable getTableByQrCode(String qrCode) {
-        return tableRepository.findByQrCode(qrCode)
+    public GuestTableResponse getTableByQrCode(String qrCode) {
+        RestaurantTable table = tableRepository.findByQrCode(qrCode)
                 .orElseThrow(() -> new ResourceNotFoundException("Table not found with QR code: " + qrCode));
+        return new GuestTableResponse(table);
     }
 
     /**
@@ -96,7 +98,9 @@ public class GuestService {
      */
     public GuestSessionResponse joinSession(GuestJoinSessionRequest request) {
         // Find or create dining session
-        RestaurantTable table = getTableByQrCode(request.getTableQrCode());
+        GuestTableResponse tableResponse = getTableByQrCode(request.getTableQrCode());
+        RestaurantTable table = tableRepository.findById(tableResponse.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Table not found"));
         DiningSession session = sessionRepository.findByTableIdAndStatus(table.getId(), SessionStatus.ACTIVE)
                 .orElseGet(() -> createNewSession(table));
         

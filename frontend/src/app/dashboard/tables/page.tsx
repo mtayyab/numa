@@ -11,10 +11,18 @@ export default function TableManagementPage() {
   const [tables, setTables] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddTable, setShowAddTable] = useState(false);
+  const [showEditTable, setShowEditTable] = useState(false);
+  const [editingTable, setEditingTable] = useState<any>(null);
   const [showQRCode, setShowQRCode] = useState(false);
   const [selectedTable, setSelectedTable] = useState<any>(null);
   const [restaurantSlug, setRestaurantSlug] = useState('');
   const [newTable, setNewTable] = useState({ 
+    tableNumber: '', 
+    capacity: 4, 
+    location: '',
+    description: ''
+  });
+  const [editTable, setEditTable] = useState({ 
     tableNumber: '', 
     capacity: 4, 
     location: '',
@@ -40,13 +48,17 @@ export default function TableManagementPage() {
           return;
         }
 
-        // Fetch tables from API
-        const tablesData = await tableApi.getAll(user.restaurantId);
-        setTables(tablesData);
-        
-        // Get restaurant slug for QR code URLs
-        // TODO: Get this from restaurant data
-        setRestaurantSlug('test-restaurant');
+      // Fetch tables from API
+      const tablesData = await tableApi.getAll(user.restaurantId);
+      setTables(tablesData);
+      
+      // Get restaurant slug for QR code URLs
+      if (user.restaurantSlug) {
+        setRestaurantSlug(user.restaurantSlug);
+      } else {
+        console.error('Restaurant slug not found in user data:', user);
+        toast.error('Restaurant slug not found. Please contact support.');
+      }
       } catch (error: any) {
         console.error('Error fetching tables data:', error);
         toast.error(error.message || 'Failed to load tables data');
@@ -129,6 +141,74 @@ export default function TableManagementPage() {
         return 'bg-gray-100 text-gray-800';
       default:
         return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const handleEditTable = (table: any) => {
+    setEditingTable(table);
+    setEditTable({
+      tableNumber: table.tableNumber,
+      capacity: table.capacity,
+      location: table.location || '',
+      description: table.description || ''
+    });
+    setShowEditTable(true);
+  };
+
+  const handleUpdateTable = async () => {
+    try {
+      if (!editingTable) return;
+      
+      const user = await authApi.getCurrentUser();
+      if (!user.restaurantId) {
+        toast.error('No restaurant associated with this account');
+        return;
+      }
+
+      const tableData = {
+        tableNumber: editTable.tableNumber,
+        capacity: editTable.capacity,
+        location: editTable.location,
+        description: editTable.description
+      };
+
+      await tableApi.update(user.restaurantId, editingTable.id, tableData);
+      
+      toast.success('Table updated successfully');
+      setShowEditTable(false);
+      setEditingTable(null);
+      
+      // Refresh tables list
+      const tablesData = await tableApi.getAll(user.restaurantId);
+      setTables(tablesData);
+    } catch (error: any) {
+      console.error('Error updating table:', error);
+      toast.error(error.message || 'Failed to update table');
+    }
+  };
+
+  const handleDeleteTable = async (table: any) => {
+    if (!confirm(`Are you sure you want to delete table "${table.tableNumber}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      const user = await authApi.getCurrentUser();
+      if (!user.restaurantId) {
+        toast.error('No restaurant associated with this account');
+        return;
+      }
+
+      await tableApi.delete(user.restaurantId, table.id);
+      
+      toast.success('Table deleted successfully');
+      
+      // Refresh tables list
+      const tablesData = await tableApi.getAll(user.restaurantId);
+      setTables(tablesData);
+    } catch (error: any) {
+      console.error('Error deleting table:', error);
+      toast.error(error.message || 'Failed to delete table');
     }
   };
 
@@ -238,6 +318,74 @@ export default function TableManagementPage() {
             </div>
           )}
 
+          {/* Edit Table Modal */}
+          {showEditTable && (
+            <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+              <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                <div className="mt-3">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">Edit Table</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Table Number</label>
+                      <input
+                        type="text"
+                        value={editTable.tableNumber}
+                        onChange={(e) => setEditTable({...editTable, tableNumber: e.target.value})}
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                        placeholder="e.g., T-01"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Capacity</label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="20"
+                        value={editTable.capacity}
+                        onChange={(e) => setEditTable({...editTable, capacity: parseInt(e.target.value)})}
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Location</label>
+                      <input
+                        type="text"
+                        value={editTable.location}
+                        onChange={(e) => setEditTable({...editTable, location: e.target.value})}
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                        placeholder="e.g., Main Dining, Patio"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Description</label>
+                      <textarea
+                        value={editTable.description}
+                        onChange={(e) => setEditTable({...editTable, description: e.target.value})}
+                        rows={3}
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                        placeholder="Optional description"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex justify-end space-x-3 mt-6">
+                    <button
+                      onClick={() => setShowEditTable(false)}
+                      className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm font-medium"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleUpdateTable}
+                      className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                    >
+                      Update Table
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Tables Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {tables.map((table) => (
@@ -284,10 +432,16 @@ export default function TableManagementPage() {
                   </div>
 
                   <div className="mt-4 flex space-x-2">
-                    <button className="flex-1 bg-primary-600 hover:bg-primary-700 text-white px-3 py-2 rounded-md text-sm font-medium">
+                    <button 
+                      onClick={() => handleEditTable(table)}
+                      className="flex-1 bg-primary-600 hover:bg-primary-700 text-white px-3 py-2 rounded-md text-sm font-medium"
+                    >
                       Edit
                     </button>
-                    <button className="flex-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm font-medium">
+                    <button 
+                      onClick={() => handleDeleteTable(table)}
+                      className="flex-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm font-medium"
+                    >
                       Delete
                     </button>
                   </div>

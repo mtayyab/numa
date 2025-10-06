@@ -1,16 +1,12 @@
 package com.numa.controller;
 
-import com.numa.domain.entity.Restaurant;
-import com.numa.domain.entity.RestaurantTable;
-import com.numa.domain.entity.MenuCategory;
-import com.numa.domain.entity.DiningSession;
-import com.numa.domain.entity.SessionGuest;
 import com.numa.dto.request.GuestJoinSessionRequest;
 import com.numa.dto.request.GuestOrderRequest;
 import com.numa.dto.response.GuestMenuResponse;
 import com.numa.dto.response.GuestSessionResponse;
 import com.numa.dto.response.GuestOrderResponse;
 import com.numa.dto.response.GuestRestaurantResponse;
+import com.numa.dto.response.GuestTableResponse;
 import com.numa.service.GuestService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -62,9 +58,9 @@ public class GuestController {
             @ApiResponse(responseCode = "404", description = "Table not found")
     })
     @GetMapping("/tables/{qrCode}")
-    public ResponseEntity<RestaurantTable> getTableByQrCode(
+    public ResponseEntity<GuestTableResponse> getTableByQrCode(
             @Parameter(description = "Table QR code") @PathVariable String qrCode) {
-        RestaurantTable table = guestService.getTableByQrCode(qrCode);
+        GuestTableResponse table = guestService.getTableByQrCode(qrCode);
         return ResponseEntity.ok(table);
     }
 

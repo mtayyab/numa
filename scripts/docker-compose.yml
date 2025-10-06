@@ -79,7 +79,7 @@ services:
     container_name: numa-frontend
     environment:
       - NODE_ENV=production
-      - NEXT_PUBLIC_API_URL=http://localhost:8080/api/v1
+      - NEXT_PUBLIC_API_URL=http://backend:8080/api/v1
       - NEXT_PUBLIC_APP_URL=http://localhost:3000
     ports:
       - "3000:3000"

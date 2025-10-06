@@ -154,7 +154,8 @@ public class AuthService {
                 user.getLastName(),
                 user.getRole().name(),
                 restaurant.getId(),
-                restaurant.getName()
+                restaurant.getName(),
+                restaurant.getSlug()
             );
         }
         
@@ -170,9 +171,10 @@ public class AuthService {
         private final String role;
         private final java.util.UUID restaurantId;
         private final String restaurantName;
+        private final String restaurantSlug;
 
         public UserInfoResponse(java.util.UUID userId, String email, String firstName, String lastName, 
-                              String role, java.util.UUID restaurantId, String restaurantName) {
+                              String role, java.util.UUID restaurantId, String restaurantName, String restaurantSlug) {
             this.userId = userId;
             this.email = email;
             this.firstName = firstName;
@@ -180,6 +182,7 @@ public class AuthService {
             this.role = role;
             this.restaurantId = restaurantId;
             this.restaurantName = restaurantName;
+            this.restaurantSlug = restaurantSlug;
         }
 
         // Getters
@@ -190,5 +193,6 @@ public class AuthService {
         public String getRole() { return role; }
         public java.util.UUID getRestaurantId() { return restaurantId; }
         public String getRestaurantName() { return restaurantName; }
+        public String getRestaurantSlug() { return restaurantSlug; }
     }
 }

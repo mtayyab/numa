@@ -107,7 +107,6 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/auth/register", "/auth/login", "/auth/refresh").permitAll()
                 .requestMatchers(HttpMethod.POST, "/auth/forgot-password", "/auth/reset-password").permitAll()
                 .requestMatchers(HttpMethod.GET, "/auth/verify-email").permitAll()
-                .requestMatchers(HttpMethod.GET, "/auth/me").permitAll()
                 
                 // Restaurant onboarding (must be before general restaurant rules)
                 .requestMatchers(HttpMethod.POST, "/restaurants/register").permitAll()
@@ -118,6 +117,7 @@ public class SecurityConfig {
                 
                 // Guest session endpoints (no auth required)
                 .requestMatchers("/guest/**").permitAll()
+                .requestMatchers("/api/v1/guest/**").permitAll()
                 
                 // QR code access
                 .requestMatchers(HttpMethod.GET, "/qr/**").permitAll()

@@ -17,12 +17,12 @@ public class GuestJoinSessionRequest {
     private String tableQrCode;
     
     @NotNull(message = "Restaurant ID is required")
-    private Long restaurantId;
+    private java.util.UUID restaurantId;
     
     // Constructors
     public GuestJoinSessionRequest() {}
     
-    public GuestJoinSessionRequest(String guestName, String tableQrCode, Long restaurantId) {
+    public GuestJoinSessionRequest(String guestName, String tableQrCode, java.util.UUID restaurantId) {
         this.guestName = guestName;
         this.tableQrCode = tableQrCode;
         this.restaurantId = restaurantId;
@@ -45,11 +45,11 @@ public class GuestJoinSessionRequest {
         this.tableQrCode = tableQrCode;
     }
     
-    public Long getRestaurantId() {
+    public java.util.UUID getRestaurantId() {
         return restaurantId;
     }
     
-    public void setRestaurantId(Long restaurantId) {
+    public void setRestaurantId(java.util.UUID restaurantId) {
         this.restaurantId = restaurantId;
     }
 }

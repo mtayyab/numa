@@ -20,16 +20,16 @@ import ErrorMessage from '@/components/ui/ErrorMessage';
 import toast from 'react-hot-toast';
 
 interface GuestMenuInterfaceProps {
-  restaurant: Restaurant;
-  table: RestaurantTable;
+  restaurantSlug: string;
   qrCode: string;
 }
 
 export default function GuestMenuInterface({ 
-  restaurant, 
-  table, 
+  restaurantSlug,
   qrCode 
 }: GuestMenuInterfaceProps) {
+  const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
+  const [table, setTable] = useState<RestaurantTable | null>(null);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [showCart, setShowCart] = useState(false);
@@ -44,11 +44,38 @@ export default function GuestMenuInterface({
   const [currentSession, setCurrentSession] = useState<any>(null);
   const [guestName, setGuestName] = useState('');
 
+  // Fetch restaurant and table data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [restaurantData, tableData] = await Promise.all([
+          guestApi.getRestaurantBySlug(restaurantSlug),
+          guestApi.getTableByQrCode(qrCode),
+        ]);
+        
+        // Verify the table belongs to the restaurant
+        if (tableData.restaurantId !== restaurantData.id) {
+          toast.error('Table does not belong to this restaurant');
+          return;
+        }
+        
+        setRestaurant(restaurantData);
+        setTable(tableData);
+      } catch (error) {
+        console.error('Error fetching restaurant/table data:', error);
+        toast.error('Failed to load restaurant data');
+      }
+    };
+
+    fetchData();
+  }, [restaurantSlug, qrCode]);
+
   // Fetch menu data
   const { data: menuCategories, isLoading, error } = useQuery({
-    queryKey: ['menu', restaurant.slug],
-    queryFn: () => menuApi.getPublicMenu(restaurant.slug),
+    queryKey: ['menu', restaurantSlug],
+    queryFn: () => menuApi.getPublicMenu(restaurantSlug),
     staleTime: 5 * 60 * 1000, // 5 minutes
+    enabled: !!restaurant, // Only fetch when restaurant is loaded
   });
 
   // Filter menu items based on search and dietary preferences
@@ -71,17 +98,7 @@ export default function GuestMenuInterface({
     return hasMatchingItems;
   });
 
-  // Calculate cart totals
-  const cartSubtotal = cartItems.reduce((total, item) => {
-    const itemPrice = item.variation 
-      ? item.menuItem.price + item.variation.priceAdjustment 
-      : item.menuItem.price;
-    return total + (itemPrice * item.quantity);
-  }, 0);
-
-  const taxAmount = cartSubtotal * restaurant.taxRate;
-  const serviceCharge = cartSubtotal * restaurant.serviceChargeRate;
-  const cartTotal = cartSubtotal + taxAmount + serviceCharge;
+  // Calculate cart totals (moved after loading check)
 
   // Handle adding item to cart
   const addToCart = (item: MenuItem, variation: any, quantity: number, specialInstructions?: string) => {
@@ -182,6 +199,27 @@ export default function GuestMenuInterface({
   useEffect(() => {
     setShowSessionJoin(true);
   }, []);
+
+  // Show loading state while fetching restaurant/table data
+  if (!restaurant || !table) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  // Calculate cart totals (after loading check)
+  const cartSubtotal = cartItems.reduce((total, item) => {
+    const itemPrice = item.variation 
+      ? item.menuItem.price + item.variation.priceAdjustment 
+      : item.menuItem.price;
+    return total + (itemPrice * item.quantity);
+  }, 0);
+
+  const taxAmount = cartSubtotal * restaurant.taxRate;
+  const serviceCharge = cartSubtotal * restaurant.serviceChargeRate;
+  const cartTotal = cartSubtotal + taxAmount + serviceCharge;
 
   if (isLoading) {
     return (
