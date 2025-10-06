@@ -173,7 +173,42 @@ public class GuestService {
     }
 
     /**
-     * Get session information
+     * Get session information by session code
+     */
+    public GuestSessionResponse getSessionByCode(String sessionCode) {
+        DiningSession session = sessionRepository.findBySessionCode(sessionCode)
+                .orElseThrow(() -> new ResourceNotFoundException("Session not found with code: " + sessionCode));
+        
+        List<SessionGuest> guests = sessionGuestRepository.findBySessionIdOrderByJoinedAtAsc(session.getId());
+        List<Order> cartItems = orderRepository.findBySessionIdAndStatus(session.getId(), OrderStatus.PENDING);
+        List<Order> orders = orderRepository.findBySessionIdAndStatusNot(session.getId(), OrderStatus.PENDING);
+        
+        // Convert entities to DTOs to avoid lazy loading issues
+        GuestDiningSessionDTO sessionDTO = convertToDiningSessionDTO(session);
+        List<GuestSessionGuestDTO> guestDTOs = guests.stream()
+                .map(this::convertToSessionGuestDTO)
+                .collect(Collectors.toList());
+        List<GuestOrderResponse> cartItemDTOs = cartItems.stream()
+                .map(this::convertToOrderResponse)
+                .collect(Collectors.toList());
+        List<GuestOrderResponse> orderDTOs = orders.stream()
+                .map(this::convertToOrderResponse)
+                .collect(Collectors.toList());
+        
+        return new GuestSessionResponse(
+                session.getId(),
+                session.getSessionCode(),
+                null, // No guest token for general session info
+                null,
+                sessionDTO,
+                guestDTOs,
+                cartItemDTOs,
+                orderDTOs
+        );
+    }
+
+    /**
+     * Get session information by session ID (for backward compatibility)
      */
     public GuestSessionResponse getSession(UUID sessionId) {
         DiningSession session = sessionRepository.findById(sessionId)

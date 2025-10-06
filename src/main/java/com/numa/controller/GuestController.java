@@ -111,17 +111,17 @@ public class GuestController {
     }
 
     /**
-     * Get session information
+     * Get session information by session code
      */
     @Operation(summary = "Get Session Info", description = "Get information about a dining session")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Session found"),
             @ApiResponse(responseCode = "404", description = "Session not found")
     })
-    @GetMapping("/sessions/{sessionId}")
+    @GetMapping("/sessions/{sessionCode}")
     public ResponseEntity<GuestSessionResponse> getSession(
-            @Parameter(description = "Session ID") @PathVariable UUID sessionId) {
-        GuestSessionResponse session = guestService.getSession(sessionId);
+            @Parameter(description = "Session code") @PathVariable String sessionCode) {
+        GuestSessionResponse session = guestService.getSessionByCode(sessionCode);
         return ResponseEntity.ok(session);
     }
 
