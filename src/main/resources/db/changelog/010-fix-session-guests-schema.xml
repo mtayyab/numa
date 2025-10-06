@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="010-fix-session-guests-schema" author="numa-team">
+        <comment>Add missing updated_at column to session_guests table</comment>
+        
+        <addColumn tableName="session_guests">
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        
+        <!-- Update existing records to have updated_at = created_at -->
+        <sql>
+            UPDATE session_guests SET updated_at = created_at WHERE updated_at IS NULL;
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>
