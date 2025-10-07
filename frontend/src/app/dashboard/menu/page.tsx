@@ -59,6 +59,11 @@ export default function MenuManagementPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // Check authentication state
+        const token = localStorage.getItem('numa_access_token');
+        console.log('Current token in localStorage:', token ? 'Present' : 'Missing');
+        console.log('Token preview:', token ? token.substring(0, 50) + '...' : 'None');
+        
         const userData = await authApi.getCurrentUser();
         setUser(userData);
         
@@ -250,6 +255,14 @@ export default function MenuManagementPage() {
 
   const toggleItemStatus = async (item: MenuItem) => {
     try {
+      // Check authentication state before making request
+      const currentToken = localStorage.getItem('numa_access_token');
+      const refreshToken = localStorage.getItem('numa_refresh_token');
+      
+      console.log('Attempting to toggle item status for:', item.name);
+      console.log('Current token available:', !!currentToken);
+      console.log('Refresh token available:', !!refreshToken);
+      
       const updatedData = { ...item, isActive: !item.isActive };
       await menuApi.updateItem(user.restaurantId, item.id, updatedData);
       toast.success(`Item ${item.isActive ? 'deactivated' : 'activated'} successfully`);
@@ -266,9 +279,49 @@ export default function MenuManagementPage() {
         }))
       }));
       setCategories(processedCategories);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error toggling item status:', error);
-      toast.error('Failed to update item status');
+      
+      // If it's a 401 error, try to refresh the token
+      if (error.status === 401) {
+        console.log('401 error detected, attempting token refresh...');
+        try {
+          const refreshToken = localStorage.getItem('numa_refresh_token');
+          if (refreshToken) {
+            const response = await authApi.refreshToken(refreshToken);
+            localStorage.setItem('numa_access_token', response.accessToken);
+            localStorage.setItem('numa_refresh_token', response.refreshToken);
+            console.log('Token refreshed successfully, retrying request...');
+            
+            // Retry the request
+            const updatedData = { ...item, isActive: !item.isActive };
+            await menuApi.updateItem(user.restaurantId, item.id, updatedData);
+            
+            // Refresh categories
+            const categoriesData = await menuApi.getCategories(user.restaurantId);
+            const processedCategories = (categoriesData || []).map(category => ({
+              ...category,
+              menuItems: (category.menuItems || []).map(item => ({
+                ...item,
+                allergens: (item.allergens && typeof item.allergens === 'string') 
+                  ? item.allergens.split(', ').filter(a => a.trim()) 
+                  : []
+              }))
+            }));
+            setCategories(processedCategories);
+            
+            toast.success(`Item ${item.isActive ? 'deactivated' : 'activated'} successfully`);
+            return;
+          }
+        } catch (refreshError) {
+          console.error('Token refresh failed:', refreshError);
+          toast.error('Session expired. Please log in again.');
+          router.push('/auth/login');
+          return;
+        }
+      }
+      
+      toast.error(error.message || 'Failed to update item status');
     }
   };
 
