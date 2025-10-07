@@ -4,9 +4,8 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { authApi } from '@/services/api';
+import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import WaiterAlerts from '@/components/dashboard/WaiterAlerts';
-import ActiveSessions from '@/components/dashboard/ActiveSessions';
-import SessionHistory from '@/components/dashboard/SessionHistory';
 import SessionAnalytics from '@/components/dashboard/SessionAnalytics';
 
 export default function DashboardPage() {
@@ -54,127 +53,93 @@ export default function DashboardPage() {
     fetchUserData();
   }, [router]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('numa_access_token');
-    localStorage.removeItem('numa_refresh_token');
-    toast.success('Logged out successfully');
-    router.push('/auth/login');
-  };
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
-      </div>
+      <DashboardLayout>
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
+          <div className="space-y-4">
+            <div className="h-32 bg-gray-200 rounded"></div>
+            <div className="h-32 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </DashboardLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div className="flex items-center">
-              <h1 className="text-3xl font-bold text-gray-900">Numa Dashboard</h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-700">
-                Welcome, {user?.name}
-              </span>
-              <button
-                onClick={handleLogout}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
+    <DashboardLayout>
+      <div className="space-y-6">
+        {/* Header */}
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+          <p className="mt-1 text-sm text-gray-600">
+            Welcome back, {user?.firstName} {user?.lastName}! Here's an overview of your restaurant.
+          </p>
         </div>
-      </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          {/* Waiter Alerts Section */}
-          <div className="mb-8">
-            <WaiterAlerts />
+        {/* Waiter Alerts Section */}
+        <div>
+          <WaiterAlerts />
+        </div>
+
+        {/* Session Analytics Section */}
+        <div>
+          <SessionAnalytics restaurantId={user?.restaurantId} />
+        </div>
+
+        {/* Quick Actions */}
+        <div className="bg-white shadow rounded-lg">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h3 className="text-lg font-medium text-gray-900">Quick Actions</h3>
           </div>
-
-          {/* Active Sessions Section */}
-          <div className="mb-8">
-            <ActiveSessions restaurantId={user?.restaurantId} />
-          </div>
-
-          {/* Session History Section */}
-          <div className="mb-8">
-            <SessionHistory restaurantId={user?.restaurantId} />
-          </div>
-
-          {/* Session Analytics Section */}
-          <div className="mb-8">
-            <SessionAnalytics restaurantId={user?.restaurantId} />
-          </div>
-
-          <div className="border-4 border-dashed border-gray-200 rounded-lg p-8">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                Welcome to your Restaurant Dashboard
-              </h2>
-              <p className="text-gray-600 mb-8">
-                Manage your restaurant, orders, and customer experience from here.
-              </p>
+          <div className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="text-center">
+                <div className="bg-primary-100 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
+                  <span className="text-primary-600 text-xl">📊</span>
+                </div>
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">Active Sessions</h4>
+                <p className="text-gray-600 mb-4">Monitor current dining sessions</p>
+                <button
+                  onClick={() => router.push('/dashboard/sessions')}
+                  className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 text-sm"
+                >
+                  View Sessions
+                </button>
+              </div>
               
-              {/* Quick Actions */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-                <div className="bg-white p-6 rounded-lg shadow-md">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Restaurant Info</h3>
-                  <p className="text-gray-600 mb-4">Update your restaurant details and settings</p>
-                  <button 
-                    onClick={() => router.push('/dashboard/restaurant')}
-                    className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-                  >
-                    Manage Restaurant
-                  </button>
+              <div className="text-center">
+                <div className="bg-green-100 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
+                  <span className="text-green-600 text-xl">🪑</span>
                 </div>
-                
-                <div className="bg-white p-6 rounded-lg shadow-md">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Menu Management</h3>
-                  <p className="text-gray-600 mb-4">Add and manage your menu items</p>
-                  <button 
-                    onClick={() => router.push('/dashboard/menu')}
-                    className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-                  >
-                    Manage Menu
-                  </button>
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">Tables</h4>
+                <p className="text-gray-600 mb-4">Manage tables and QR codes</p>
+                <button
+                  onClick={() => router.push('/dashboard/tables')}
+                  className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 text-sm"
+                >
+                  Manage Tables
+                </button>
+              </div>
+              
+              <div className="text-center">
+                <div className="bg-blue-100 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
+                  <span className="text-blue-600 text-xl">⚙️</span>
                 </div>
-                
-                <div className="bg-white p-6 rounded-lg shadow-md">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Orders</h3>
-                  <p className="text-gray-600 mb-4">View and manage customer orders</p>
-                  <button 
-                    onClick={() => router.push('/dashboard/orders')}
-                    className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-                  >
-                    View Orders
-                  </button>
-                </div>
-                
-                <div className="bg-white p-6 rounded-lg shadow-md">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Tables & QR Codes</h3>
-                  <p className="text-gray-600 mb-4">Manage restaurant tables and generate QR codes</p>
-                  <button 
-                    onClick={() => router.push('/dashboard/tables')}
-                    className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-                  >
-                    Manage Tables
-                  </button>
-                </div>
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">Settings</h4>
+                <p className="text-gray-600 mb-4">Configure restaurant settings</p>
+                <button
+                  onClick={() => router.push('/dashboard/settings')}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-sm"
+                >
+                  Open Settings
+                </button>
               </div>
             </div>
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 }
