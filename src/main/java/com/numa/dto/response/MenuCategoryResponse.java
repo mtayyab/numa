@@ -2,6 +2,7 @@ package com.numa.dto.response;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -17,6 +18,7 @@ public class MenuCategoryResponse {
     private Boolean isActive;
     private LocalTime availableFrom;
     private LocalTime availableUntil;
+    private List<MenuItemResponse> menuItems;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -25,7 +27,8 @@ public class MenuCategoryResponse {
 
     public MenuCategoryResponse(UUID id, String name, String description, String imageUrl,
                                Integer sortOrder, Boolean isActive, LocalTime availableFrom,
-                               LocalTime availableUntil, LocalDateTime createdAt, LocalDateTime updatedAt) {
+                               LocalTime availableUntil, List<MenuItemResponse> menuItems,
+                               LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -34,6 +37,7 @@ public class MenuCategoryResponse {
         this.isActive = isActive;
         this.availableFrom = availableFrom;
         this.availableUntil = availableUntil;
+        this.menuItems = menuItems;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -117,5 +121,13 @@ public class MenuCategoryResponse {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public List<MenuItemResponse> getMenuItems() {
+        return menuItems;
+    }
+
+    public void setMenuItems(List<MenuItemResponse> menuItems) {
+        this.menuItems = menuItems;
     }
 }

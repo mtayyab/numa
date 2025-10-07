@@ -263,6 +263,13 @@ public class MenuService {
         response.setAvailableUntil(category.getAvailableUntil());
         response.setCreatedAt(category.getCreatedAt());
         response.setUpdatedAt(category.getUpdatedAt());
+        
+        // Map menu items for this category
+        List<MenuItemResponse> menuItems = category.getMenuItems().stream()
+                .map(this::mapToItemResponse)
+                .collect(Collectors.toList());
+        response.setMenuItems(menuItems);
+        
         return response;
     }
 

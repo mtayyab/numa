@@ -64,7 +64,17 @@ export default function MenuManagementPage() {
         
         // Fetch menu categories with items
         const categoriesData = await menuApi.getCategories(userData.restaurantId);
-        setCategories(categoriesData || []);
+        
+        // Process categories to convert allergens string to array for each menu item
+        const processedCategories = (categoriesData || []).map(category => ({
+          ...category,
+          menuItems: (category.menuItems || []).map(item => ({
+            ...item,
+            allergens: item.allergens ? item.allergens.split(', ').filter(a => a.trim()) : []
+          }))
+        }));
+        
+        setCategories(processedCategories);
       } catch (error) {
         console.error('Error fetching data:', error);
         toast.error('Failed to load menu data');
@@ -110,7 +120,14 @@ export default function MenuManagementPage() {
       
       // Refresh categories
       const categoriesData = await menuApi.getCategories(user.restaurantId);
-      setCategories(categoriesData || []);
+      const processedCategories = (categoriesData || []).map(category => ({
+        ...category,
+        menuItems: (category.menuItems || []).map(item => ({
+          ...item,
+          allergens: item.allergens ? item.allergens.split(', ').filter(a => a.trim()) : []
+        }))
+      }));
+      setCategories(processedCategories);
     } catch (error) {
       console.error('Error deleting category:', error);
       toast.error('Failed to delete category');
@@ -128,7 +145,14 @@ export default function MenuManagementPage() {
       
       // Refresh categories
       const categoriesData = await menuApi.getCategories(user.restaurantId);
-      setCategories(categoriesData || []);
+      const processedCategories = (categoriesData || []).map(category => ({
+        ...category,
+        menuItems: (category.menuItems || []).map(item => ({
+          ...item,
+          allergens: item.allergens ? item.allergens.split(', ').filter(a => a.trim()) : []
+        }))
+      }));
+      setCategories(processedCategories);
     } catch (error) {
       console.error('Error deleting item:', error);
       toast.error('Failed to delete item');
@@ -148,7 +172,14 @@ export default function MenuManagementPage() {
       
       // Refresh categories
       const categoriesData = await menuApi.getCategories(user.restaurantId);
-      setCategories(categoriesData || []);
+      const processedCategories = (categoriesData || []).map(category => ({
+        ...category,
+        menuItems: (category.menuItems || []).map(item => ({
+          ...item,
+          allergens: item.allergens ? item.allergens.split(', ').filter(a => a.trim()) : []
+        }))
+      }));
+      setCategories(processedCategories);
     } catch (error) {
       console.error('Error saving category:', error);
       toast.error('Failed to save category');
@@ -168,7 +199,14 @@ export default function MenuManagementPage() {
       
       // Refresh categories
       const categoriesData = await menuApi.getCategories(user.restaurantId);
-      setCategories(categoriesData || []);
+      const processedCategories = (categoriesData || []).map(category => ({
+        ...category,
+        menuItems: (category.menuItems || []).map(item => ({
+          ...item,
+          allergens: item.allergens ? item.allergens.split(', ').filter(a => a.trim()) : []
+        }))
+      }));
+      setCategories(processedCategories);
     } catch (error) {
       console.error('Error saving item:', error);
       toast.error('Failed to save item');
@@ -183,7 +221,14 @@ export default function MenuManagementPage() {
       
       // Refresh categories
       const categoriesData = await menuApi.getCategories(user.restaurantId);
-      setCategories(categoriesData || []);
+      const processedCategories = (categoriesData || []).map(category => ({
+        ...category,
+        menuItems: (category.menuItems || []).map(item => ({
+          ...item,
+          allergens: item.allergens ? item.allergens.split(', ').filter(a => a.trim()) : []
+        }))
+      }));
+      setCategories(processedCategories);
     } catch (error) {
       console.error('Error toggling category status:', error);
       toast.error('Failed to update category status');
@@ -198,7 +243,14 @@ export default function MenuManagementPage() {
       
       // Refresh categories
       const categoriesData = await menuApi.getCategories(user.restaurantId);
-      setCategories(categoriesData || []);
+      const processedCategories = (categoriesData || []).map(category => ({
+        ...category,
+        menuItems: (category.menuItems || []).map(item => ({
+          ...item,
+          allergens: item.allergens ? item.allergens.split(', ').filter(a => a.trim()) : []
+        }))
+      }));
+      setCategories(processedCategories);
     } catch (error) {
       console.error('Error toggling item status:', error);
       toast.error('Failed to update item status');
