@@ -52,7 +52,7 @@ export default function MenuItemModal({ isOpen, onClose, onSave, item, category,
           isGlutenFree: item.isGlutenFree || false,
           isSpicy: item.isSpicy || false,
           spiceLevel: item.spiceLevel || 1,
-          allergens: item.allergens || []
+          allergens: item.allergens ? item.allergens.split(', ').filter(a => a.trim()) : []
         });
       } else {
         setFormData({
@@ -79,7 +79,12 @@ export default function MenuItemModal({ isOpen, onClose, onSave, item, category,
     setSaving(true);
 
     try {
-      await onSave(formData);
+      // Convert allergens array to string for backend
+      const dataToSave = {
+        ...formData,
+        allergens: formData.allergens.join(', ')
+      };
+      await onSave(dataToSave);
       onClose();
     } catch (error) {
       console.error('Error saving item:', error);

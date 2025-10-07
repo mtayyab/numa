@@ -34,13 +34,24 @@ public class MenuItemRequest {
     @Size(max = 500, message = "Allergens must not exceed 500 characters")
     private String allergens;
 
+    private Boolean isVegetarian;
+
+    private Boolean isVegan;
+
+    private Boolean isGlutenFree;
+
+    private Boolean isSpicy;
+
+    private Integer spiceLevel;
+
 
     // Constructors
     public MenuItemRequest() {}
 
     public MenuItemRequest(String name, String description, BigDecimal price, String imageUrl,
                           Integer sortOrder, Boolean isActive, Boolean isAvailable,
-                          String allergens) {
+                          String allergens, Boolean isVegetarian, Boolean isVegan,
+                          Boolean isGlutenFree, Boolean isSpicy, Integer spiceLevel) {
         this.name = name;
         this.description = description;
         this.price = price;
@@ -49,6 +60,11 @@ public class MenuItemRequest {
         this.isActive = isActive;
         this.isAvailable = isAvailable;
         this.allergens = allergens;
+        this.isVegetarian = isVegetarian;
+        this.isVegan = isVegan;
+        this.isGlutenFree = isGlutenFree;
+        this.isSpicy = isSpicy;
+        this.spiceLevel = spiceLevel;
     }
 
     // Getters and Setters
@@ -114,6 +130,46 @@ public class MenuItemRequest {
 
     public void setAllergens(String allergens) {
         this.allergens = allergens;
+    }
+
+    public Boolean getIsVegetarian() {
+        return isVegetarian;
+    }
+
+    public void setIsVegetarian(Boolean isVegetarian) {
+        this.isVegetarian = isVegetarian;
+    }
+
+    public Boolean getIsVegan() {
+        return isVegan;
+    }
+
+    public void setIsVegan(Boolean isVegan) {
+        this.isVegan = isVegan;
+    }
+
+    public Boolean getIsGlutenFree() {
+        return isGlutenFree;
+    }
+
+    public void setIsGlutenFree(Boolean isGlutenFree) {
+        this.isGlutenFree = isGlutenFree;
+    }
+
+    public Boolean getIsSpicy() {
+        return isSpicy;
+    }
+
+    public void setIsSpicy(Boolean isSpicy) {
+        this.isSpicy = isSpicy;
+    }
+
+    public Integer getSpiceLevel() {
+        return spiceLevel;
+    }
+
+    public void setSpiceLevel(Integer spiceLevel) {
+        this.spiceLevel = spiceLevel;
     }
 
 }

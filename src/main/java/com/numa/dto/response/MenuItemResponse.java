@@ -19,6 +19,11 @@ public class MenuItemResponse {
     private Boolean isActive;
     private Boolean isAvailable;
     private String allergens;
+    private Boolean isVegetarian;
+    private Boolean isVegan;
+    private Boolean isGlutenFree;
+    private Boolean isSpicy;
+    private Integer spiceLevel;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -28,6 +33,8 @@ public class MenuItemResponse {
     public MenuItemResponse(UUID id, UUID categoryId, String name, String description,
                            BigDecimal price, String imageUrl, Integer sortOrder,
                            Boolean isActive, Boolean isAvailable, String allergens,
+                           Boolean isVegetarian, Boolean isVegan, Boolean isGlutenFree,
+                           Boolean isSpicy, Integer spiceLevel,
                            LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.categoryId = categoryId;
@@ -39,6 +46,11 @@ public class MenuItemResponse {
         this.isActive = isActive;
         this.isAvailable = isAvailable;
         this.allergens = allergens;
+        this.isVegetarian = isVegetarian;
+        this.isVegan = isVegan;
+        this.isGlutenFree = isGlutenFree;
+        this.isSpicy = isSpicy;
+        this.spiceLevel = spiceLevel;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -139,5 +151,45 @@ public class MenuItemResponse {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Boolean getIsVegetarian() {
+        return isVegetarian;
+    }
+
+    public void setIsVegetarian(Boolean isVegetarian) {
+        this.isVegetarian = isVegetarian;
+    }
+
+    public Boolean getIsVegan() {
+        return isVegan;
+    }
+
+    public void setIsVegan(Boolean isVegan) {
+        this.isVegan = isVegan;
+    }
+
+    public Boolean getIsGlutenFree() {
+        return isGlutenFree;
+    }
+
+    public void setIsGlutenFree(Boolean isGlutenFree) {
+        this.isGlutenFree = isGlutenFree;
+    }
+
+    public Boolean getIsSpicy() {
+        return isSpicy;
+    }
+
+    public void setIsSpicy(Boolean isSpicy) {
+        this.isSpicy = isSpicy;
+    }
+
+    public Integer getSpiceLevel() {
+        return spiceLevel;
+    }
+
+    public void setSpiceLevel(Integer spiceLevel) {
+        this.spiceLevel = spiceLevel;
     }
 }

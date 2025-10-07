@@ -62,9 +62,9 @@ export default function MenuManagementPage() {
         const userData = await authApi.getCurrentUser();
         setUser(userData);
         
-        // Fetch menu categories
-        const menuData = await menuApi.getPublicMenu(userData.restaurant.slug);
-        setCategories(menuData.categories || []);
+        // Fetch menu categories with items
+        const categoriesData = await menuApi.getCategories(userData.restaurantId);
+        setCategories(categoriesData || []);
       } catch (error) {
         console.error('Error fetching data:', error);
         toast.error('Failed to load menu data');
@@ -105,9 +105,12 @@ export default function MenuManagementPage() {
     }
 
     try {
-      // TODO: Implement delete category API
+      await menuApi.deleteCategory(user.restaurantId, categoryId);
       toast.success('Category deleted successfully');
+      
       // Refresh categories
+      const categoriesData = await menuApi.getCategories(user.restaurantId);
+      setCategories(categoriesData || []);
     } catch (error) {
       console.error('Error deleting category:', error);
       toast.error('Failed to delete category');
@@ -120,9 +123,12 @@ export default function MenuManagementPage() {
     }
 
     try {
-      // TODO: Implement delete item API
+      await menuApi.deleteItem(user.restaurantId, itemId);
       toast.success('Item deleted successfully');
+      
       // Refresh categories
+      const categoriesData = await menuApi.getCategories(user.restaurantId);
+      setCategories(categoriesData || []);
     } catch (error) {
       console.error('Error deleting item:', error);
       toast.error('Failed to delete item');
@@ -131,10 +137,18 @@ export default function MenuManagementPage() {
 
   const handleSaveCategory = async (categoryData: any) => {
     try {
-      // TODO: Implement save category API
-      toast.success(editingCategory ? 'Category updated successfully' : 'Category created successfully');
+      if (editingCategory) {
+        await menuApi.updateCategory(user.restaurantId, editingCategory.id, categoryData);
+        toast.success('Category updated successfully');
+      } else {
+        await menuApi.createCategory(user.restaurantId, categoryData);
+        toast.success('Category created successfully');
+      }
       setShowCategoryModal(false);
+      
       // Refresh categories
+      const categoriesData = await menuApi.getCategories(user.restaurantId);
+      setCategories(categoriesData || []);
     } catch (error) {
       console.error('Error saving category:', error);
       toast.error('Failed to save category');
@@ -143,10 +157,18 @@ export default function MenuManagementPage() {
 
   const handleSaveItem = async (itemData: any) => {
     try {
-      // TODO: Implement save item API
-      toast.success(editingItem ? 'Item updated successfully' : 'Item created successfully');
+      if (editingItem) {
+        await menuApi.updateItem(user.restaurantId, editingItem.id, itemData);
+        toast.success('Item updated successfully');
+      } else {
+        await menuApi.createItem(user.restaurantId, selectedCategory.id, itemData);
+        toast.success('Item created successfully');
+      }
       setShowItemModal(false);
+      
       // Refresh categories
+      const categoriesData = await menuApi.getCategories(user.restaurantId);
+      setCategories(categoriesData || []);
     } catch (error) {
       console.error('Error saving item:', error);
       toast.error('Failed to save item');
@@ -155,9 +177,13 @@ export default function MenuManagementPage() {
 
   const toggleCategoryStatus = async (category: MenuCategory) => {
     try {
-      // TODO: Implement toggle category status API
+      const updatedData = { ...category, isActive: !category.isActive };
+      await menuApi.updateCategory(user.restaurantId, category.id, updatedData);
       toast.success(`Category ${category.isActive ? 'deactivated' : 'activated'} successfully`);
+      
       // Refresh categories
+      const categoriesData = await menuApi.getCategories(user.restaurantId);
+      setCategories(categoriesData || []);
     } catch (error) {
       console.error('Error toggling category status:', error);
       toast.error('Failed to update category status');
@@ -166,9 +192,13 @@ export default function MenuManagementPage() {
 
   const toggleItemStatus = async (item: MenuItem) => {
     try {
-      // TODO: Implement toggle item status API
+      const updatedData = { ...item, isActive: !item.isActive };
+      await menuApi.updateItem(user.restaurantId, item.id, updatedData);
       toast.success(`Item ${item.isActive ? 'deactivated' : 'activated'} successfully`);
+      
       // Refresh categories
+      const categoriesData = await menuApi.getCategories(user.restaurantId);
+      setCategories(categoriesData || []);
     } catch (error) {
       console.error('Error toggling item status:', error);
       toast.error('Failed to update item status');

@@ -174,6 +174,11 @@ public class MenuService {
         item.setIsActive(request.getIsActive() != null ? request.getIsActive() : true);
         item.setIsAvailable(request.getIsAvailable() != null ? request.getIsAvailable() : true);
         item.setAllergens(request.getAllergens());
+        item.setIsVegetarian(request.getIsVegetarian() != null ? request.getIsVegetarian() : false);
+        item.setIsVegan(request.getIsVegan() != null ? request.getIsVegan() : false);
+        item.setIsGlutenFree(request.getIsGlutenFree() != null ? request.getIsGlutenFree() : false);
+        item.setIsSpicy(request.getIsSpicy() != null ? request.getIsSpicy() : false);
+        item.setSpiceLevel(request.getSpiceLevel() != null ? request.getSpiceLevel() : 0);
 
         MenuItem savedItem = menuItemRepository.save(item);
         return mapToItemResponse(savedItem);
@@ -208,6 +213,21 @@ public class MenuService {
             item.setIsAvailable(request.getIsAvailable());
         }
         item.setAllergens(request.getAllergens());
+        if (request.getIsVegetarian() != null) {
+            item.setIsVegetarian(request.getIsVegetarian());
+        }
+        if (request.getIsVegan() != null) {
+            item.setIsVegan(request.getIsVegan());
+        }
+        if (request.getIsGlutenFree() != null) {
+            item.setIsGlutenFree(request.getIsGlutenFree());
+        }
+        if (request.getIsSpicy() != null) {
+            item.setIsSpicy(request.getIsSpicy());
+        }
+        if (request.getSpiceLevel() != null) {
+            item.setSpiceLevel(request.getSpiceLevel());
+        }
 
         MenuItem savedItem = menuItemRepository.save(item);
         return mapToItemResponse(savedItem);
@@ -261,6 +281,11 @@ public class MenuService {
         response.setIsActive(item.getIsActive());
         response.setIsAvailable(item.getIsAvailable());
         response.setAllergens(item.getAllergens());
+        response.setIsVegetarian(item.getIsVegetarian());
+        response.setIsVegan(item.getIsVegan());
+        response.setIsGlutenFree(item.getIsGlutenFree());
+        response.setIsSpicy(item.getIsSpicy());
+        response.setSpiceLevel(item.getSpiceLevel());
         response.setCreatedAt(item.getCreatedAt());
         response.setUpdatedAt(item.getUpdatedAt());
         return response;
