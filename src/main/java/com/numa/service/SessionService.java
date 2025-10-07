@@ -261,16 +261,21 @@ public class SessionService {
         
         // Get revenue and guest metrics
         List<Object[]> revenueStats = sessionRepository.getRevenueStats(restaurantId, startDate, endDate);
-        BigDecimal totalRevenue = revenueStats.isEmpty() ? BigDecimal.ZERO : (BigDecimal) revenueStats.get(0)[0];
-        BigDecimal averageOrderValue = revenueStats.isEmpty() ? BigDecimal.ZERO : (BigDecimal) revenueStats.get(0)[1];
+        BigDecimal totalRevenue = revenueStats.isEmpty() ? BigDecimal.ZERO : 
+            revenueStats.get(0)[0] != null ? BigDecimal.valueOf(((Number) revenueStats.get(0)[0]).doubleValue()) : BigDecimal.ZERO;
+        BigDecimal averageOrderValue = revenueStats.isEmpty() ? BigDecimal.ZERO : 
+            revenueStats.get(0)[1] != null ? BigDecimal.valueOf(((Number) revenueStats.get(0)[1]).doubleValue()) : BigDecimal.ZERO;
         
         List<Object[]> guestStats = sessionRepository.getGuestStats(restaurantId, startDate, endDate);
-        Integer totalGuests = guestStats.isEmpty() ? 0 : ((Number) guestStats.get(0)[0]).intValue();
-        Double averageGuestsPerSession = guestStats.isEmpty() ? 0.0 : ((Number) guestStats.get(0)[1]).doubleValue();
+        Integer totalGuests = guestStats.isEmpty() ? 0 : 
+            guestStats.get(0)[0] != null ? ((Number) guestStats.get(0)[0]).intValue() : 0;
+        Double averageGuestsPerSession = guestStats.isEmpty() ? 0.0 : 
+            guestStats.get(0)[1] != null ? ((Number) guestStats.get(0)[1]).doubleValue() : 0.0;
         
         // Get average session duration
         List<Object[]> durationStats = sessionRepository.getDurationStats(restaurantId, startDate, endDate);
-        Integer averageSessionDurationMinutes = durationStats.isEmpty() ? 0 : ((Number) durationStats.get(0)[0]).intValue();
+        Integer averageSessionDurationMinutes = durationStats.isEmpty() ? 0 : 
+            durationStats.get(0)[0] != null ? ((Number) durationStats.get(0)[0]).intValue() : 0;
         
         // Get hourly stats
         List<Object[]> hourlyData = sessionRepository.getHourlySessionStats(restaurantId, startDate, endDate);
@@ -288,7 +293,7 @@ public class SessionService {
                 .map(row -> {
                     String date = ((java.sql.Date) row[0]).toLocalDate().format(DateTimeFormatter.ISO_LOCAL_DATE);
                     Long sessions = ((Number) row[1]).longValue();
-                    BigDecimal revenue = (BigDecimal) row[3];
+                    BigDecimal revenue = row[3] != null ? BigDecimal.valueOf(((Number) row[3]).doubleValue()) : BigDecimal.ZERO;
                     Integer guests = ((Number) row[2]).intValue();
                     Double avgOrderValue = sessions > 0 ? revenue.divide(BigDecimal.valueOf(sessions), 2, java.math.RoundingMode.HALF_UP).doubleValue() : 0.0;
                     
