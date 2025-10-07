@@ -1,8 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { Bars3Icon } from '@heroicons/react/24/outline';
+import { useRouter } from 'next/navigation';
+import { Bars3Icon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
 import DashboardSidebar from './DashboardSidebar';
+import toast from 'react-hot-toast';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -10,9 +12,17 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const router = useRouter();
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('numa_access_token');
+    localStorage.removeItem('numa_refresh_token');
+    toast.success('Logged out successfully');
+    router.push('/auth/login');
   };
 
   return (
@@ -42,6 +52,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               <div className="text-sm text-gray-500">
                 Welcome back!
               </div>
+              
+              {/* Logout Button */}
+              <button
+                onClick={handleLogout}
+                className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+              >
+                <ArrowRightOnRectangleIcon className="h-4 w-4 mr-2" />
+                Logout
+              </button>
             </div>
           </div>
         </div>

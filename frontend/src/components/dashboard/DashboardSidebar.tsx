@@ -25,9 +25,15 @@ const navigationItems = [
     current: true
   },
   {
+    name: 'Analytics',
+    href: '/dashboard/analytics',
+    icon: ChartBarIcon,
+    current: false
+  },
+  {
     name: 'Active Sessions',
     href: '/dashboard/sessions',
-    icon: ChartBarIcon,
+    icon: ClockIcon,
     current: false
   },
   {

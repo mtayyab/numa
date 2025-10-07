@@ -6,7 +6,6 @@ import toast from 'react-hot-toast';
 import { authApi } from '@/services/api';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import WaiterAlerts from '@/components/dashboard/WaiterAlerts';
-import SessionAnalytics from '@/components/dashboard/SessionAnalytics';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -81,11 +80,6 @@ export default function DashboardPage() {
         {/* Waiter Alerts Section */}
         <div>
           <WaiterAlerts />
-        </div>
-
-        {/* Session Analytics Section */}
-        <div>
-          <SessionAnalytics restaurantId={user?.restaurantId} />
         </div>
 
         {/* Quick Actions */}
