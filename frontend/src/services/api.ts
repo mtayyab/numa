@@ -15,6 +15,7 @@ const createApiInstance = (): AxiosInstance => {
   instance.interceptors.request.use(
     (config) => {
       const token = getAccessToken();
+      console.log('API Request:', config.url, 'Token:', token ? 'Present' : 'Missing');
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -33,10 +34,12 @@ const createApiInstance = (): AxiosInstance => {
 
       // Handle 401 errors (unauthorized)
       if (error.response?.status === 401 && !originalRequest._retry) {
+        console.log('401 Unauthorized error:', error.response?.data);
         originalRequest._retry = true;
 
         try {
           const refreshToken = getRefreshToken();
+          console.log('Refresh token available:', refreshToken ? 'Yes' : 'No');
           if (refreshToken) {
             const response = await refreshAccessToken(refreshToken);
             setTokens(response.accessToken, response.refreshToken);
@@ -44,6 +47,7 @@ const createApiInstance = (): AxiosInstance => {
             return instance(originalRequest);
           }
         } catch (refreshError) {
+          console.log('Token refresh failed:', refreshError);
           // Refresh failed, redirect to login
           clearTokens();
           if (typeof window !== 'undefined') {
