@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { MenuIcon } from '@heroicons/react/24/outline';
+import { Bars3Icon } from '@heroicons/react/24/outline';
 import DashboardSidebar from './DashboardSidebar';
 
 interface DashboardLayoutProps {
@@ -30,7 +30,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 onClick={toggleSidebar}
                 className="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100"
               >
-                <MenuIcon className="h-6 w-6" />
+                <Bars3Icon className="h-6 w-6" />
               </button>
               <h2 className="ml-2 text-xl font-semibold text-gray-900 lg:ml-0">
                 Restaurant Dashboard
