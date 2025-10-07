@@ -52,7 +52,9 @@ export default function MenuItemModal({ isOpen, onClose, onSave, item, category,
           isGlutenFree: item.isGlutenFree || false,
           isSpicy: item.isSpicy || false,
           spiceLevel: item.spiceLevel || 1,
-          allergens: item.allergens ? item.allergens.split(', ').filter(a => a.trim()) : []
+          allergens: (item.allergens && typeof item.allergens === 'string') 
+            ? item.allergens.split(', ').filter(a => a.trim()) 
+            : []
         });
       } else {
         setFormData({
