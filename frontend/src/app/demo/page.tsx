@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowLeftIcon, QrCodeIcon, DevicePhoneMobileIcon, ChartBarIcon, CreditCardIcon, PlayIcon } from '@heroicons/react/24/outline';
+import QRCodeGenerator from '@/components/ui/QRCodeGenerator';
 
 export const metadata: Metadata = {
   title: 'Demo - Numa',
@@ -144,13 +145,17 @@ export default function DemoPage() {
                 </p>
               </div>
               
-              {/* QR Code Placeholder */}
-              <div className="bg-gray-100 rounded-lg p-8 mb-6">
-                <div className="w-32 h-32 bg-white rounded-lg mx-auto flex items-center justify-center border-2 border-dashed border-gray-300">
-                  <QrCodeIcon className="w-16 h-16 text-gray-400" />
+              {/* Actual QR Code */}
+              <div className="bg-white rounded-lg p-8 mb-6 border border-gray-200">
+                <div className="flex justify-center">
+                  <QRCodeGenerator 
+                    url="https://numa-demo.vercel.app/restaurant/demo-restaurant/table/TABLE001"
+                    size={128}
+                    className="rounded-lg"
+                  />
                 </div>
-                <p className="text-sm text-gray-500 mt-2">
-                  QR Code would be displayed here
+                <p className="text-sm text-gray-600 mt-4 text-center">
+                  Scan this QR code to experience the guest ordering flow
                 </p>
               </div>
               
