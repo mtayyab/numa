@@ -2,6 +2,7 @@ package com.numa.service;
 
 import com.numa.dto.response.ActiveSessionResponse;
 import com.numa.dto.response.SessionHistoryResponse;
+import com.numa.dto.response.SessionAnalyticsResponse;
 import com.numa.domain.entity.DiningSession;
 import com.numa.domain.entity.SessionGuest;
 import com.numa.domain.entity.Order;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -242,5 +244,75 @@ public class SessionService {
                 session.getCreatedAt(),
                 session.getUpdatedAt()
         );
+    }
+
+    /**
+     * Get session analytics for a restaurant
+     */
+    @Transactional(readOnly = true)
+    public SessionAnalyticsResponse getSessionAnalytics(UUID restaurantId, String timeRange) {
+        LocalDateTime endDate = LocalDateTime.now();
+        LocalDateTime startDate = calculateStartDate(timeRange, endDate);
+        
+        // Get basic metrics
+        Long totalSessions = sessionRepository.countByRestaurantIdAndStartedAtBetween(restaurantId, startDate, endDate);
+        Long activeSessions = sessionRepository.countByRestaurantIdAndStatus(restaurantId, SessionStatus.ACTIVE);
+        Long completedSessions = sessionRepository.countByRestaurantIdAndStatus(restaurantId, SessionStatus.COMPLETED);
+        
+        // Get revenue and guest metrics
+        List<Object[]> revenueStats = sessionRepository.getRevenueStats(restaurantId, startDate, endDate);
+        BigDecimal totalRevenue = revenueStats.isEmpty() ? BigDecimal.ZERO : (BigDecimal) revenueStats.get(0)[0];
+        BigDecimal averageOrderValue = revenueStats.isEmpty() ? BigDecimal.ZERO : (BigDecimal) revenueStats.get(0)[1];
+        
+        List<Object[]> guestStats = sessionRepository.getGuestStats(restaurantId, startDate, endDate);
+        Integer totalGuests = guestStats.isEmpty() ? 0 : ((Number) guestStats.get(0)[0]).intValue();
+        Double averageGuestsPerSession = guestStats.isEmpty() ? 0.0 : ((Number) guestStats.get(0)[1]).doubleValue();
+        
+        // Get average session duration
+        List<Object[]> durationStats = sessionRepository.getDurationStats(restaurantId, startDate, endDate);
+        Integer averageSessionDurationMinutes = durationStats.isEmpty() ? 0 : ((Number) durationStats.get(0)[0]).intValue();
+        
+        // Get hourly stats
+        List<Object[]> hourlyData = sessionRepository.getHourlySessionStats(restaurantId, startDate, endDate);
+        List<SessionAnalyticsResponse.HourlyStats> peakHours = hourlyData.stream()
+                .map(row -> new SessionAnalyticsResponse.HourlyStats(
+                        ((Number) row[0]).intValue(),
+                        ((Number) row[1]).longValue(),
+                        ((Number) row[2]).doubleValue()
+                ))
+                .collect(Collectors.toList());
+        
+        // Get daily stats
+        List<Object[]> dailyData = sessionRepository.getDailySessionStats(restaurantId, startDate, endDate);
+        List<SessionAnalyticsResponse.DailyStats> dailyStats = dailyData.stream()
+                .map(row -> {
+                    String date = ((java.sql.Date) row[0]).toLocalDate().format(DateTimeFormatter.ISO_LOCAL_DATE);
+                    Long sessions = ((Number) row[1]).longValue();
+                    BigDecimal revenue = (BigDecimal) row[3];
+                    Integer guests = ((Number) row[2]).intValue();
+                    Double avgOrderValue = sessions > 0 ? revenue.divide(BigDecimal.valueOf(sessions), 2, java.math.RoundingMode.HALF_UP).doubleValue() : 0.0;
+                    
+                    return new SessionAnalyticsResponse.DailyStats(date, sessions, revenue, guests, avgOrderValue);
+                })
+                .collect(Collectors.toList());
+        
+        return new SessionAnalyticsResponse(
+                totalSessions, activeSessions, completedSessions,
+                totalRevenue, averageOrderValue, totalGuests,
+                averageGuestsPerSession, averageSessionDurationMinutes,
+                peakHours, dailyStats, startDate, endDate
+        );
+    }
+    
+    /**
+     * Calculate start date based on time range
+     */
+    private LocalDateTime calculateStartDate(String timeRange, LocalDateTime endDate) {
+        return switch (timeRange) {
+            case "7d" -> endDate.minusDays(7);
+            case "30d" -> endDate.minusDays(30);
+            case "90d" -> endDate.minusDays(90);
+            default -> endDate.minusDays(30); // Default to 30 days
+        };
     }
 }

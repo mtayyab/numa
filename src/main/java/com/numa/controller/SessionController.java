@@ -2,6 +2,7 @@ package com.numa.controller;
 
 import com.numa.dto.response.ActiveSessionResponse;
 import com.numa.dto.response.SessionHistoryResponse;
+import com.numa.dto.response.SessionAnalyticsResponse;
 import com.numa.service.SessionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -90,5 +91,21 @@ public class SessionController {
             @Parameter(description = "Session ID") @PathVariable UUID sessionId) {
         ActiveSessionResponse session = sessionService.getSessionDetails(sessionId);
         return ResponseEntity.ok(session);
+    }
+
+    /**
+     * Get session analytics for a restaurant
+     */
+    @Operation(summary = "Get Session Analytics", description = "Get comprehensive analytics for restaurant sessions")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Analytics retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "Restaurant not found")
+    })
+    @GetMapping("/restaurant/{restaurantId}/analytics")
+    public ResponseEntity<SessionAnalyticsResponse> getSessionAnalytics(
+            @Parameter(description = "Restaurant ID") @PathVariable UUID restaurantId,
+            @Parameter(description = "Time range (7d, 30d, 90d)") @RequestParam(defaultValue = "30d") String timeRange) {
+        SessionAnalyticsResponse analytics = sessionService.getSessionAnalytics(restaurantId, timeRange);
+        return ResponseEntity.ok(analytics);
     }
 }

@@ -188,4 +188,40 @@ public interface DiningSessionRepository extends JpaRepository<DiningSession, UU
            "ORDER BY s.startedAt DESC")
     List<DiningSession> findRecentSessions(@Param("restaurantId") UUID restaurantId,
                                          @Param("thirtyDaysAgo") LocalDateTime thirtyDaysAgo);
+
+    /**
+     * Get revenue statistics for analytics
+     */
+    @Query("SELECT SUM(s.totalAmount) as totalRevenue, AVG(s.totalAmount) as avgOrderValue " +
+           "FROM DiningSession s WHERE s.restaurant.id = :restaurantId " +
+           "AND s.startedAt BETWEEN :startDate AND :endDate")
+    List<Object[]> getRevenueStats(@Param("restaurantId") UUID restaurantId,
+                                  @Param("startDate") LocalDateTime startDate,
+                                  @Param("endDate") LocalDateTime endDate);
+
+    /**
+     * Get guest statistics for analytics
+     */
+    @Query("SELECT SUM(s.guestCount) as totalGuests, AVG(s.guestCount) as avgGuestsPerSession " +
+           "FROM DiningSession s WHERE s.restaurant.id = :restaurantId " +
+           "AND s.startedAt BETWEEN :startDate AND :endDate")
+    List<Object[]> getGuestStats(@Param("restaurantId") UUID restaurantId,
+                                @Param("startDate") LocalDateTime startDate,
+                                @Param("endDate") LocalDateTime endDate);
+
+    /**
+     * Get duration statistics for analytics
+     */
+    @Query("SELECT AVG(TIMESTAMPDIFF(MINUTE, s.startedAt, s.endedAt)) as avgDurationMinutes " +
+           "FROM DiningSession s WHERE s.restaurant.id = :restaurantId " +
+           "AND s.startedAt BETWEEN :startDate AND :endDate " +
+           "AND s.endedAt IS NOT NULL")
+    List<Object[]> getDurationStats(@Param("restaurantId") UUID restaurantId,
+                                   @Param("startDate") LocalDateTime startDate,
+                                   @Param("endDate") LocalDateTime endDate);
+
+    /**
+     * Count sessions by restaurant and date range
+     */
+    long countByRestaurantIdAndStartedAtBetween(UUID restaurantId, LocalDateTime startDate, LocalDateTime endDate);
 }

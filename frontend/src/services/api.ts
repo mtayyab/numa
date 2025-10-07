@@ -359,6 +359,13 @@ export const sessionApi = {
     const response = await api.post(`/sessions/${sessionId}/end`);
     return response.data;
   },
+
+  getSessionAnalytics: async (restaurantId: string, timeRange: string = '30d') => {
+    const response = await api.get(`/sessions/restaurant/${restaurantId}/analytics`, {
+      params: { timeRange }
+    });
+    return response.data;
+  },
 };
 
 // Order API

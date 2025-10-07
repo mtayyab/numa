@@ -16,19 +16,21 @@ interface AnalyticsData {
   activeSessions: number;
   completedSessions: number;
   totalRevenue: number;
-  averageSessionDuration: number;
+  averageSessionDurationMinutes: number;
   averageGuestsPerSession: number;
   averageOrderValue: number;
   totalGuests: number;
   peakHours: Array<{
     hour: number;
     sessionCount: number;
+    averageGuestCount: number;
   }>;
   dailyStats: Array<{
     date: string;
     sessions: number;
     revenue: number;
     guests: number;
+    averageOrderValue: number;
   }>;
 }
 
@@ -48,37 +50,14 @@ export default function SessionAnalytics({ restaurantId }: SessionAnalyticsProps
   const fetchAnalytics = async () => {
     try {
       setLoading(true);
-      // TODO: Implement analytics API endpoint
-      // const response = await sessionApi.getSessionAnalytics(restaurantId, timeRange);
-      // setAnalytics(response);
-      
-      // Mock data for now
-      setAnalytics({
-        totalSessions: 156,
-        activeSessions: 8,
-        completedSessions: 148,
-        totalRevenue: 12450.75,
-        averageSessionDuration: 85,
-        averageGuestsPerSession: 3.2,
-        averageOrderValue: 45.30,
-        totalGuests: 499,
-        peakHours: [
-          { hour: 12, sessionCount: 15 },
-          { hour: 13, sessionCount: 18 },
-          { hour: 19, sessionCount: 22 },
-          { hour: 20, sessionCount: 19 },
-        ],
-        dailyStats: [
-          { date: '2024-01-01', sessions: 12, revenue: 540.00, guests: 38 },
-          { date: '2024-01-02', sessions: 15, revenue: 680.50, guests: 48 },
-          { date: '2024-01-03', sessions: 18, revenue: 820.25, guests: 58 },
-          { date: '2024-01-04', sessions: 14, revenue: 650.75, guests: 45 },
-          { date: '2024-01-05', sessions: 22, revenue: 980.00, guests: 72 },
-        ]
-      });
+      const response = await sessionApi.getSessionAnalytics(restaurantId, timeRange);
+      setAnalytics(response);
     } catch (error) {
       console.error('Error fetching analytics:', error);
       toast.error('Failed to load analytics');
+      
+      // Fallback to empty state instead of mock data
+      setAnalytics(null);
     } finally {
       setLoading(false);
     }
@@ -92,6 +71,7 @@ export default function SessionAnalytics({ restaurantId }: SessionAnalyticsProps
   };
 
   const formatDuration = (minutes: number) => {
+    if (!minutes || minutes === 0) return 'N/A';
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     if (hours > 0) {
@@ -204,7 +184,7 @@ export default function SessionAnalytics({ restaurantId }: SessionAnalyticsProps
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-orange-600">Avg Duration</p>
-                <p className="text-2xl font-bold text-orange-900">{formatDuration(analytics.averageSessionDuration)}</p>
+                <p className="text-2xl font-bold text-orange-900">{formatDuration(analytics.averageSessionDurationMinutes)}</p>
                 <p className="text-xs text-orange-500">per session</p>
               </div>
             </div>
@@ -275,7 +255,7 @@ export default function SessionAnalytics({ restaurantId }: SessionAnalyticsProps
                       {day.guests}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {formatCurrency(day.revenue / day.sessions)}
+                      {formatCurrency(day.averageOrderValue || 0)}
                     </td>
                   </tr>
                 ))}
