@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
-import { authApi } from '@/services/api';
+import { authApi, settingsApi } from '@/services/api';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import {
   CurrencyDollarIcon,
@@ -105,34 +105,47 @@ export default function SettingsPage() {
   ];
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchData = async () => {
       try {
-        const userData = await authApi.getCurrentUser();
+        const [userData, settingsData] = await Promise.all([
+          authApi.getCurrentUser(),
+          settingsApi.getRestaurantSettings()
+        ]);
+        
         setUser(userData);
         
-        // Load existing settings if available
-        if (userData.restaurant) {
-          setCurrencySettings({
-            currencyCode: userData.restaurant.currencyCode || 'USD',
-            currencySymbol: getCurrencySymbol(userData.restaurant.currencyCode || 'USD'),
-            decimalPlaces: 2
-          });
-          
-          setLanguageSettings({
-            languageCode: userData.restaurant.languageCode || 'en',
-            timezone: userData.restaurant.timezone || 'America/New_York'
-          });
-        }
+        // Load settings from API
+        setCurrencySettings({
+          currencyCode: settingsData.currencyCode || 'PKR',
+          currencySymbol: getCurrencySymbol(settingsData.currencyCode || 'PKR'),
+          decimalPlaces: settingsData.decimalPlaces || 2
+        });
+        
+        setLanguageSettings({
+          languageCode: settingsData.languageCode || 'en',
+          timezone: settingsData.timezone || 'Asia/Karachi'
+        });
+        
+        setRestaurantSettings({
+          name: settingsData.name || '',
+          description: settingsData.description || '',
+          phone: settingsData.phone || '',
+          email: settingsData.email || '',
+          address: settingsData.address || '',
+          city: settingsData.city || '',
+          country: settingsData.country || 'Pakistan',
+          logoUrl: settingsData.logoUrl || ''
+        });
       } catch (error) {
-        console.error('Error fetching user:', error);
-        toast.error('Failed to load user data');
+        console.error('Error fetching data:', error);
+        toast.error('Failed to load settings data');
         router.push('/auth/login');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUser();
+    fetchData();
   }, [router]);
 
   const getCurrencySymbol = (code: string) => {
@@ -153,13 +166,22 @@ export default function SettingsPage() {
     try {
       setSaving(true);
       
-      // TODO: Implement API call to save settings
-      // await settingsApi.updateRestaurantSettings(user.restaurantId, {
-      //   currencyCode: currencySettings.currencyCode,
-      //   languageCode: languageSettings.languageCode,
-      //   timezone: languageSettings.timezone
-      // });
+      const settingsData = {
+        name: restaurantSettings.name,
+        description: restaurantSettings.description,
+        phone: restaurantSettings.phone,
+        email: restaurantSettings.email,
+        address: restaurantSettings.address,
+        city: restaurantSettings.city,
+        country: restaurantSettings.country,
+        logoUrl: restaurantSettings.logoUrl,
+        currencyCode: currencySettings.currencyCode,
+        languageCode: languageSettings.languageCode,
+        timezone: languageSettings.timezone,
+        decimalPlaces: currencySettings.decimalPlaces
+      };
       
+      await settingsApi.updateRestaurantSettings(settingsData);
       toast.success('Settings saved successfully!');
     } catch (error) {
       console.error('Error saving settings:', error);

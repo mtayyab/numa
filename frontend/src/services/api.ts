@@ -368,6 +368,19 @@ export const sessionApi = {
   },
 };
 
+// Settings API
+export const settingsApi = {
+  getRestaurantSettings: async () => {
+    const response = await api.get('/settings/restaurant');
+    return response.data;
+  },
+
+  updateRestaurantSettings: async (settings: any) => {
+    const response = await api.put('/settings/restaurant', settings);
+    return response.data;
+  },
+};
+
 // Order API
 export const orderApi = {
   create: async (sessionId: string, orderData: any) => {

@@ -134,6 +134,7 @@ public class SecurityConfig {
                 .requestMatchers("/orders/**").authenticated()
                 .requestMatchers("/sessions/**").authenticated()
                 .requestMatchers("/analytics/**").authenticated()
+                .requestMatchers("/settings/**").authenticated()
                 
                 // Admin endpoints
                 .requestMatchers("/admin/**").hasRole("OWNER")
