@@ -9,7 +9,8 @@ import {
   CogIcon,
   TableCellsIcon,
   Bars3Icon,
-  XMarkIcon
+  XMarkIcon,
+  DocumentTextIcon
 } from '@heroicons/react/24/outline';
 
 interface DashboardSidebarProps {
@@ -46,6 +47,12 @@ const navigationItems = [
     name: 'Tables',
     href: '/dashboard/tables',
     icon: TableCellsIcon,
+    current: false
+  },
+  {
+    name: 'Menu Management',
+    href: '/dashboard/menu',
+    icon: DocumentTextIcon,
     current: false
   },
   {
