@@ -15,6 +15,5 @@
     <include file="db/changelog/008-create-analytics.xml"/>
     <include file="db/changelog/009-add-indexes.xml"/>
     <include file="db/changelog/010-fix-session-guests-schema.xml"/>
-    <include file="db/changelog/011-create-vouchers.xml"/>
 
 </databaseChangeLog>
