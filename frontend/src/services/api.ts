@@ -385,6 +385,86 @@ export const settingsApi = {
   },
 };
 
+// Voucher API
+export const voucherApi = {
+  // Get all vouchers for a restaurant
+  getVouchers: async (restaurantId: string) => {
+    const response = await api.get(`/vouchers/restaurant/${restaurantId}`);
+    return response.data;
+  },
+
+  // Get vouchers with pagination
+  getVouchersPaginated: async (restaurantId: string, page: number = 0, size: number = 20) => {
+    const response = await api.get(`/vouchers/restaurant/${restaurantId}/paginated`, {
+      params: { page, size }
+    });
+    return response.data;
+  },
+
+  // Get active vouchers for a restaurant
+  getActiveVouchers: async (restaurantId: string) => {
+    const response = await api.get(`/vouchers/restaurant/${restaurantId}/active`);
+    return response.data;
+  },
+
+  // Get voucher by ID
+  getVoucherById: async (voucherId: string) => {
+    const response = await api.get(`/vouchers/${voucherId}`);
+    return response.data;
+  },
+
+  // Get voucher by code (for guest usage)
+  getVoucherByCode: async (code: string) => {
+    const response = await api.get(`/vouchers/code/${code}`);
+    return response.data;
+  },
+
+  // Create new voucher
+  createVoucher: async (voucherData: any) => {
+    const response = await api.post('/vouchers', voucherData);
+    return response.data;
+  },
+
+  // Update voucher
+  updateVoucher: async (voucherId: string, voucherData: any) => {
+    const response = await api.put(`/vouchers/${voucherId}`, voucherData);
+    return response.data;
+  },
+
+  // Delete voucher
+  deleteVoucher: async (voucherId: string) => {
+    await api.delete(`/vouchers/${voucherId}`);
+  },
+
+  // Toggle voucher status
+  toggleVoucherStatus: async (voucherId: string) => {
+    const response = await api.patch(`/vouchers/${voucherId}/toggle-status`);
+    return response.data;
+  },
+
+  // Validate voucher for order
+  validateVoucher: async (code: string, orderAmount: number) => {
+    const response = await api.post('/vouchers/validate', null, {
+      params: { code, orderAmount }
+    });
+    return response.data;
+  },
+
+  // Calculate voucher discount
+  calculateDiscount: async (code: string, orderAmount: number) => {
+    const response = await api.post('/vouchers/calculate-discount', null, {
+      params: { code, orderAmount }
+    });
+    return response.data;
+  },
+
+  // Generate unique voucher code
+  generateVoucherCode: async () => {
+    const response = await api.get('/vouchers/generate-code');
+    return response.data;
+  },
+};
+
 // Order API
 export const orderApi = {
   create: async (sessionId: string, orderData: any) => {
